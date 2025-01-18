@@ -1,14 +1,14 @@
-# Nepali Bhasas
+# MUJI LANG
 
 ## Project Description
-Nepali Bhasas is a simple programming language designed to help users learn basic programming concepts in their native Nepali language. The language supports basic arithmetic operations, input/output operations, string operations, and conditional statements.
+The language supports basic arithmetic operations, input/output operations, string operations, and conditional statements.
 
 ## Installation Instructions
 To install and set up the project, follow these steps:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/nepalibhasas.git
+   git clone https://github.com/konseptt/nepalibhasas.git
    cd nepalibhasas
    ```
 
