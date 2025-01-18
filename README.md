@@ -1,95 +1,156 @@
 # MUJI LANG
 
-## Project Description
-The language supports basic arithmetic operations, input/output operations, string operations, and conditional statements.
+MUJI LANG is a programming language designed to make coding accessible to Nepali speakers. It features natural Nepali-like syntax while maintaining powerful programming capabilities.
 
-## Installation Instructions
-To install and set up the project, follow these steps:
+## Features
+
+- **Natural Nepali Syntax**: Write code using familiar Nepali words and phrases
+- **Basic Programming Constructs**: 
+  - Variables and data types
+  - Arithmetic operations
+  - String manipulation
+  - Input/output operations
+  - Conditional statements
+- **Easy to Learn**: Designed with beginners in mind
+- **Interactive Console**: Built-in REPL for quick experimentation
+
+## Installation
+
+### Prerequisites
+- Rust programming environment
+- Cargo package manager
+
+### Steps
 
 1. Clone the repository:
-   ```sh
-   git clone https://github.com/konseptt/nepalibhasas.git
-   cd nepalibhasas
-   ```
+```bash
+git clone https://github.com/konseptt/MUJI-LANG.git
+cd MUJI-LANG
+```
 
 2. Build the project:
-   ```sh
-   cargo build
-   ```
+```bash
+cargo build --release
+```
 
-3. Run the project:
-   ```sh
-   cargo run
-   ```
+3. Run the interpreter:
+```bash
+cargo run
+```
 
-## Usage Examples
-Here are some examples of how to use the Nepali Bhasas programming language:
+## Language Guide
 
-1. Variables and Basic Arithmetic:
-   ```nbh
-   bol mug "=== Variables and Arithmetic ==="
-   oi mug a = 10
-   oi mug b = 5
-   mug jod a, b lai sum
-   bol mug "Sum: " + sum
-   mug ghata a, b lai diff
-   bol mug "Difference: " + diff
-   bol mug ""
-   ```
+### 1. Basic Syntax
 
-2. Input/Output Operations:
-   ```nbh
-   bol mug "=== Input/Output Demo ==="
-   bol mug "Timro naam k ho?"
-   oi mug bhan userName
-   bol mug "Namaste " + userName + "!"
-   bol mug ""
-   ```
+#### Variables and Assignment
+```nbh
+oi mug variable = 10          // Number variable
+oi mug name = "Ram"           // String variable
+oi mug flag = true           // Boolean variable
+```
 
-3. String Operations:
-   ```nbh
-   bol mug "=== String Operations ==="
-   oi mug firstName = "Ram"
-   oi mug lastName = "Bahadur"
-   oi mug fullName = firstName + " " + lastName
-   bol mug "Full Name: " + fullName
-   bol mug ""
-   ```
+#### Input/Output
+```nbh
+bol mug "Namaste!"           // Print output
+oi mug bhan userInput        // Get user input
+```
 
-4. Simple Conditional:
-   ```nbh
-   bol mug "=== Simple Conditional ==="
-   bol mug "Timro umer kati ho?"
-   oi mug bhan age
-   yedi age babaal "18" bhane
-       bol mug "Tapai adult hunu huncha"
-   sakiyo
-   bol mug ""
-   ```
+#### Arithmetic Operations
+```nbh
+mug jod a, b lai result     // Addition
+mug ghata a, b lai diff     // Subtraction
+```
 
-5. Multiple Conditions Chain:
-   ```nbh
-   bol mug "=== Multiple Conditions ==="
-   bol mug "Timro favourite color k ho?"
-   oi mug bhan color
+### 2. Control Flow
 
-   yedi color babaal "rato" bhane
-       bol mug "Rato rang maya ko rang ho"
-   sakiyo
-   aile feri color babaal "nilo" bhane
-       bol mug "Nilo rang akash jastai ho"
-   sakiyo
-   aile feri color babaal "hariyo" bhane
-       bol mug "Hariyo rang prakrti ko rang ho"
-   sakiyo
-   ```
+#### Conditional Statements
+```nbh
+yedi age babaal "18" bhane
+    bol mug "Adult"
+sakiyo
 
-## Contribution Guide
-We welcome contributions to the Nepali Bhasas project! To contribute, please follow these guidelines:
+yedi score babaal "80" bhane
+    bol mug "Ramro Score!"
+aile feri score babaal "60" bhane
+    bol mug "Thikai Score"
+sakiyo
+```
 
-1. Fork the repository and create a new branch for your feature or bugfix.
-2. Write tests for your changes and ensure all existing tests pass.
-3. Submit a pull request with a clear description of your changes.
+### 3. Complete Program Example
+```nbh
+// Simple calculator
+bol mug "Pahilo Number:"
+oi mug bhan num1
+bol mug "Dosro Number:"
+oi mug bhan num2
+
+mug jod num1, num2 lai result
+bol mug "Sum: " + result
+```
+
+## Project Structure
+
+```
+MUJI-LANG/
+├── src/
+│   ├── main.rs          # Entry point
+│   ├── lexer.rs         # Tokenization
+│   ├── parser.rs        # Syntax parsing
+│   ├── interpreter.rs    # Code execution
+│   └── error.rs         # Error handling
+├── examples/            # Example programs
+├── tests/              # Test cases
+└── README.md
+```
+
+## Development
+
+### Building from Source
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+cargo check
+```
+3. Build the project:
+```bash
+cargo build
+```
+4. Run tests:
+```bash
+cargo test
+```
+
+### Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+#### Contribution Guidelines
+
+- Follow Rust coding standards
+- Add tests for new features
+- Update documentation as needed
+- Keep commit messages clear and descriptive
+
+## Troubleshooting
+
+Common issues and solutions:
+
+1. **Compilation Errors**
+   - Ensure Rust is properly installed
+   - Run `cargo clean` and try rebuilding
+
+2. **Runtime Errors**
+   - Check syntax in your MUJI LANG code
+   - Verify input types match expectations
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
