@@ -1,2 +1,14 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Mark Makefiles as documentation
+Makefile linguist-documentation
+makefile linguist-documentation
+*.mk linguist-documentation
+
+# Mark batch files as documentation
+*.bat linguist-documentation
+*.cmd linguist-documentation
+
+# Ensure Rust is detected correctly
+*.rs linguist-language=Rust
