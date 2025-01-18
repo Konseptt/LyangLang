@@ -12,7 +12,6 @@ MUJI LANG is a programming language designed to make coding accessible to Nepali
   - Input/output operations
   - Conditional statements
 - **Easy to Learn**: Designed with beginners in mind
-- **Interactive Console**: Built-in REPL for quick experimentation
 
 ## Installation
 
