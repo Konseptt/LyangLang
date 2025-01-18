@@ -1,0 +1,48 @@
+// 1. Variables and Basic Arithmetic
+bol mug "=== Variables and Arithmetic ==="
+oi mug a = 10
+oi mug b = 5
+mug jod a, b lai sum
+bol mug "Sum: " + sum
+mug ghata a, b lai diff
+bol mug "Difference: " + diff
+bol mug ""
+
+// 2. Input/Output Operations
+bol mug "=== Input/Output Demo ==="
+bol mug "Timro naam k ho?"
+oi mug bhan userName
+bol mug "Namaste " + userName + "!"
+bol mug ""
+
+// 3. String Operations
+bol mug "=== String Operations ==="
+oi mug firstName = "Ram"
+oi mug lastName = "Bahadur"
+oi mug fullName = firstName + " " + lastName
+bol mug "Full Name: " + fullName
+bol mug ""
+
+// 4. Simple Conditional
+bol mug "=== Simple Conditional ==="
+bol mug "Timro umer kati ho?"
+oi mug bhan age
+yedi age babaal "18" bhane
+    bol mug "Tapai adult hunu huncha"
+sakiyo
+bol mug ""
+
+// 5. Multiple Conditions Chain
+bol mug "=== Multiple Conditions ==="
+bol mug "Timro favourite color k ho?"
+oi mug bhan color
+
+yedi color babaal "rato" bhane
+    bol mug "Rato rang maya ko rang ho"
+sakiyo
+aile feri color babaal "nilo" bhane
+    bol mug "Nilo rang akash jastai ho"
+sakiyo
+aile feri color babaal "hariyo" bhane
+    bol mug "Hariyo rang prakrti ko rang ho"
+sakiyo
