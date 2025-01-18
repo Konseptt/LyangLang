@@ -1,14 +1,16 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
-# Mark Makefiles as documentation
-Makefile linguist-documentation
-makefile linguist-documentation
-*.mk linguist-documentation
+# Force all Makefiles to be detected as vendored
+Makefile linguist-vendored=true
+makefile linguist-vendored=true
+*.mk linguist-vendored=true
 
-# Mark batch files as documentation
-*.bat linguist-documentation
-*.cmd linguist-documentation
-
-# Ensure Rust is detected correctly
+# Explicitly mark Rust as the primary language
 *.rs linguist-language=Rust
+*.rs linguist-detectable=true
+
+# Exclude build scripts from language stats
+build.sh linguist-vendored=true
+*.bat linguist-vendored=true
+*.cmd linguist-vendored=true
