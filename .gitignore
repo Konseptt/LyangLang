@@ -1,76 +1,30 @@
 # Rust specific
 /target/
-/debug/
-/release/
 **/*.rs.bk
-*.pdb
 Cargo.lock
 
-# Editor and IDE files
+# IDE and Editor files
 .idea/
 .vscode/
 .vs/
 *.swp
-*.swo
 *~
-*.sublime-workspace
-*.sublime-project
-.project
-.settings/
-.classpath
-*.iml
-*.iws
-*.ipr
 
-# OS generated files
+# Build outputs
+*.exe
+*.pdb
+/debug/
+/release/
+
+# Test and example files
+*.nbh
+mugchal*
+
+# OS specific
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 Desktop.ini
 
-# Build and compilation artifacts
-*.o
-*.a
-*.so
-*.dylib
-*.dll
-*.exe
-*.out
-*.app
-*.wasm
-
-# Debug and profiling
-callgrind.out.*
-perf.data*
-*.profraw
-coverage/
-*.gcda
-*.gcno
-
-# Temporary and backup files
-*.bak
-*.tmp
-*.temp
-*.log
-*.old
-.*.kate-swp
-
-# Environment and configuration
-.env
-.env.local
-.env.*.local
-config.local.toml
-
-# Documentation generated
-/doc/
-/target/doc/
-
-# Other files
-example.nbh
-examples.nbh
-mugchal
-mugchal.cmd
+# Local configs
+.env*
+config.local.*
