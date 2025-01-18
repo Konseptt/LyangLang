@@ -37,6 +37,15 @@ cargo build --release
 cargo run
 ```
 
+## Running the Program
+
+You can run the program using the bash file `./mujchal`. 
+
+### Example Command
+```bash
+./mujchal example.nbh
+```
+
 ## Language Guide
 
 ### 1. Basic Syntax
