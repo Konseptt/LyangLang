@@ -23,8 +23,8 @@ LyangLang is a programming language designed to make coding accessible to Nepali
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/konseptt/MUJI-LANG.git
-cd MUJI-LANG
+git clone https://github.com/konseptt/LyangLang.git
+cd LyangLang
 ```
 
 2. Build the project:
@@ -99,7 +99,7 @@ bol mug "Sum: " + result
 ## Project Structure
 
 ```
-MUJI-LANG/
+LyangLang/
 ├── src/
 │   ├── main.rs          # Entry point
 │   ├── lexer.rs         # Tokenization
