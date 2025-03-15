@@ -1,4 +1,4 @@
-# Nepal LANG
+# LyangLang
 
 MUJI LANG is a programming language designed to make coding accessible to Nepali speakers. It features natural Nepali-like syntax while maintaining powerful programming capabilities.
 
