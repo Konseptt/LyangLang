@@ -1,6 +1,6 @@
 # LyangLang
 
-MUJI LANG is a programming language designed to make coding accessible to Nepali speakers. It features natural Nepali-like syntax while maintaining powerful programming capabilities.
+LyangLang is a programming language designed to make coding accessible to Nepali speakers. It features natural Nepali-like syntax while maintaining powerful programming capabilities.
 
 ## Features
 
@@ -155,7 +155,7 @@ Common issues and solutions:
    - Run `cargo clean` and try rebuilding
 
 2. **Runtime Errors**
-   - Check syntax in your MUJI LANG code
+   - Check syntax in your LyangLang code
    - Verify input types match expectations
 
 ## License
