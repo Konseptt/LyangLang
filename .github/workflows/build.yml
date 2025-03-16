@@ -11,11 +11,15 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -39,10 +43,16 @@ jobs:
         override: true
     
     - name: Build
-      run: cargo build --release
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release
     
     - name: Run tests
-      run: cargo test --release
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --release
     
     - name: Package for Unix-like
       if: matrix.os != 'windows-latest'

@@ -8,13 +8,14 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: write
+
 jobs:
-  create_release:  # Changed from create-release to create_release
+  create_release:
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v3
       - name: Create Release
@@ -29,8 +30,9 @@ jobs:
           prerelease: false
 
   build-release:
-    needs: create_release  # Updated to match the job name above
+    needs: create_release
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -60,11 +62,18 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
+      - name: Install cross-compilation tools
+        if: contains(matrix.target, 'aarch64')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
       - name: Build release binary
         uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release --target ${{ matrix.target }}
+          use-cross: ${{ contains(matrix.target, 'aarch64') }}
 
       - name: Package Release
         shell: bash
