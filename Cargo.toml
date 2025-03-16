@@ -1,7 +1,25 @@
 [package]
-name = "nepalibhasas"
+name = "lyangpiler"
 version = "0.1.0"
+authors = ["LyangLang Team"]
 edition = "2021"
+description = "Lyangpiler - A VM for the LyangLang programming language"
+readme = "README.md"
+homepage = "https://github.com/konseptt/LyangLang"
+repository = "https://github.com/konseptt/LyangLang"
+license = "MIT"
+keywords = ["programming-language", "nepali", "interpreter", "vm", "bytecode"]
+categories = ["compilers", "development-tools"]
+
+[[bin]]
+name = "lyangpiler"
+path = "src/main.rs"
 
 [dependencies]
 thiserror = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true  # Automatically strip symbols from the binary

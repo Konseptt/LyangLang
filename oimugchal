@@ -1,0 +1,167 @@
+#!/bin/bash
+# oimugchal - LyangLang package manager
+# Usage: oimugchal [command] [options]
+
+VERSION="0.1.0"
+LYANGPILER_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Define colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Print banner
+print_banner() {
+    echo -e "${BLUE}${BOLD}"
+    echo "  _                           _                   "
+    echo " | |                         | |                  "
+    echo " | |    _   _  __ _ _ __   __| |_ __   __ _ _ __  "
+    echo " | |   | | | |/ _\` | '_ \ / _\` | '_ \ / _\` | '_ \ "
+    echo " | |___| |_| | (_| | | | | (_| | |_) | (_| | | | |"
+    echo " |______\__, |\__,_|_| |_|\__,_| .__/ \__, |_| |_|"
+    echo "         __/ |                 | |     __/ |      "
+    echo "        |___/                  |_|    |___/       "
+    echo -e "${NC}"
+    echo -e "${YELLOW}Lyangpiler Package Manager v${VERSION}${NC}"
+    echo
+}
+
+# Print help message
+print_help() {
+    echo -e "${BOLD}Usage:${NC} oimugchal [command] [options]"
+    echo
+    echo -e "${BOLD}Commands:${NC}"
+    echo -e "  ${GREEN}new${NC} <project-name>        Create a new LyangLang project"
+    echo -e "  ${GREEN}build${NC}                     Build the project"
+    echo -e "  ${GREEN}run${NC} [file.nbh]            Run a LyangLang file (default: example.nbh)"
+    echo -e "  ${GREEN}vm${NC} [file.nbh]             Run with the Lyangpiler VM (default: example.nbh)"
+    echo -e "  ${GREEN}release${NC}                   Build for release"
+    echo -e "  ${GREEN}install${NC}                   Install the compiled binary"
+    echo -e "  ${GREEN}clean${NC}                     Clean build artifacts"
+    echo -e "  ${GREEN}test${NC}                      Run tests"
+    echo -e "  ${GREEN}version${NC}                   Show version information"
+    echo -e "  ${GREEN}help${NC}                      Show this help message"
+    echo
+    echo -e "${BOLD}Examples:${NC}"
+    echo "  oimugchal new hello-world"
+    echo "  oimugchal run example.nbh"
+    echo "  oimugchal vm example.nbh"
+    echo
+}
+
+create_new_project() {
+    if [ -z "$1" ]; then
+        echo -e "${RED}Error: Project name required${NC}"
+        echo "Usage: oimugchal new <project-name>"
+        exit 1
+    fi
+    
+    PROJECT_NAME="$1"
+    
+    if [ -d "$PROJECT_NAME" ]; then
+        echo -e "${RED}Error: Directory '$PROJECT_NAME' already exists${NC}"
+        exit 1
+    fi
+    
+    echo -e "${BLUE}Creating new LyangLang project: ${BOLD}$PROJECT_NAME${NC}"
+    
+    mkdir -p "$PROJECT_NAME"
+    cd "$PROJECT_NAME"
+    
+    # Create project structure
+    mkdir -p src
+    
+    # Create main file
+    cat > src/main.nbh << EOF
+// Main file for $PROJECT_NAME project
+
+// Print a welcome message
+bol mug "Namaste, world!"
+
+// Get user input
+bol mug "Timro naam k ho?"
+oi mug bhan userName
+
+// Greet the user
+bol mug "Namaste, " + userName + "!"
+EOF
+    
+    # Create project configuration file
+    cat > lyangfile.toml << EOF
+[project]
+name = "$PROJECT_NAME"
+version = "0.1.0"
+author = ""
+
+[dependencies]
+# List your dependencies here
+# example = "1.0.0"
+
+[build]
+main = "src/main.nbh"
+EOF
+    
+    echo -e "${GREEN}Project created successfully!${NC}"
+    echo
+    echo "Get started with:"
+    echo -e "  ${BOLD}cd $PROJECT_NAME${NC}"
+    echo -e "  ${BOLD}oimugchal run${NC}"
+    echo
+}
+
+# Command line parsing
+if [ $# -eq 0 ]; then
+    print_banner
+    print_help
+    exit 0
+fi
+
+COMMAND="$1"
+shift
+
+case "$COMMAND" in
+    "new")
+        create_new_project "$1"
+        ;;
+    "build")
+        cd "${LYANGPILER_DIR}" && cargo build
+        ;;
+    "run")
+        FILE="${1:-example.nbh}"
+        cd "${LYANGPILER_DIR}" && cargo run -- "$FILE"
+        ;;
+    "vm")
+        FILE="${1:-example.nbh}"
+        cd "${LYANGPILER_DIR}" && cargo run -- "$FILE" --vm
+        ;;
+    "release")
+        cd "${LYANGPILER_DIR}" && cargo build --release
+        ;;
+    "install")
+        cd "${LYANGPILER_DIR}" && cargo install --path .
+        ;;
+    "clean")
+        cd "${LYANGPILER_DIR}" && cargo clean
+        ;;
+    "test")
+        cd "${LYANGPILER_DIR}" && cargo test
+        ;;
+    "version")
+        print_banner
+        echo -e "LyangLang Version: ${GREEN}${VERSION}${NC}"
+        ;;
+    "help")
+        print_banner
+        print_help
+        ;;
+    *)
+        echo -e "${RED}Unknown command: $COMMAND${NC}"
+        print_help
+        exit 1
+        ;;
+esac
+
+exit 0
