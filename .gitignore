@@ -1,30 +1,107 @@
-# Rust specific
+###################
+# Rust artifacts #
+###################
 /target/
 **/*.rs.bk
 Cargo.lock
 
-# IDE and Editor files
+# Only keep Cargo.lock for binary projects, not libraries
+# See https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html
+
+##################
+# IDE and editors #
+##################
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs
 .idea/
-.vscode/
-.vs/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# Vim
 *.swp
+*.swo
 *~
 
-# Build outputs
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+#####################
+# OS generated files #
+#####################
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+
+####################
+# Project specific #
+####################
+# Build outputs and binaries
 *.exe
 *.pdb
 /debug/
 /release/
+/lyangpiler
+/lyangpiler.exe
+/dist/
 
-# Test and example files
-*.nbh
+# Package files
+*.zip
+*.tar.gz
+*.tar.xz
+*-v*.zip
+*-v*.tar.gz
+/package/
+/lyangpiler-*/
+
+# Generated documentation
+/doc/
+/docs/generated/
+
+# Test and example files (keep examples directory but ignore specific test files)
 mugchal*
+/temp/
+/tmp/
 
-# OS specific
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# Local configs
-.env*
+# Local configuration
+.env
+.env.*
 config.local.*
+*.local.toml
+local_settings.toml
+
+# Cache files
+.cache/
+__pycache__/
+
+# Release artifacts
+/lyangpiler-*-amd64/
+/lyangpiler-*-x86_64/
+/lyangpiler-*-aarch64/
