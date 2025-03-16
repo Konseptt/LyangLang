@@ -1,0 +1,23 @@
+#!/bin/bash
+# Lyangpiler VM launcher for Unix-like systems
+# Usage: ./lyangpiler <filename.nbh>
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+EXEC_PATH="$SCRIPT_DIR/target/release/lyangpiler"
+
+# Check if required parameter is provided
+if [ -z "$1" ]; then
+    echo "Usage: ./lyangpiler <filename.nbh>"
+    exit 1
+fi
+
+# Check if compiled executable exists
+if [ -f "$EXEC_PATH" ]; then
+    # Use the compiled executable
+    "$EXEC_PATH" "$1" --vm
+else
+    # Executable not found, use cargo run
+    echo "Notice: Compiled executable not found, using cargo run instead."
+    echo "You can build the executable with: cargo build --release"
+    cargo run -- "$1" --vm
+fi
