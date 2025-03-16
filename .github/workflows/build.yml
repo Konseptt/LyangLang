@@ -8,13 +8,15 @@ on:
   pull_request:
     branches: [ main, master ]
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
             artifact_name: lyangpiler
@@ -27,9 +29,9 @@ jobs:
             asset_name: lyangpiler-macos-amd64
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
-    - name: Set up Rust
+    - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
         profile: minimal
@@ -46,11 +48,11 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: |
         mkdir -p release/lyangpiler
-        cp target/release/lyangpiler release/lyangpiler/
-        cp oimugchal install.sh release/lyangpiler/
+        cp target/release/${{ matrix.artifact_name }} release/lyangpiler/
+        cp lyangpiler install.sh release/lyangpiler/
         cp README.md release/lyangpiler/
         cp example.nbh release/lyangpiler/ || true
-        chmod +x release/lyangpiler/oimugchal
+        chmod +x release/lyangpiler/lyangpiler
         chmod +x release/lyangpiler/install.sh
         cd release
         tar -czf ${{ matrix.asset_name }}.tar.gz lyangpiler/
@@ -60,27 +62,29 @@ jobs:
       shell: bash
       run: |
         mkdir -p release/lyangpiler
-        cp target/release/lyangpiler.exe release/lyangpiler/
-        cp oimugchal.cmd install.cmd release/lyangpiler/
+        cp target/release/${{ matrix.artifact_name }} release/lyangpiler/
+        cp lyangpiler.cmd install.cmd release/lyangpiler/
         cp README.md release/lyangpiler/
         cp example.nbh release/lyangpiler/ || true
         cd release
         7z a -tzip ${{ matrix.asset_name }}.zip lyangpiler/
     
     - name: Upload build artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.asset_name }}
         path: release/${{ matrix.asset_name }}.*
-    
-  release:
-    name: Create Release
+
+  create_draft_release:
+    name: Create Draft Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       
     - name: Create Release
       id: create_release
@@ -89,10 +93,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: LyangLang ${{ github.ref }}
-        draft: false
+        release_name: Release ${{ github.ref_name }}
+        draft: true
         prerelease: false
-        
+
     - name: Upload Linux Asset
       uses: actions/upload-release-asset@v1
       env:
@@ -102,7 +106,7 @@ jobs:
         asset_path: ./lyangpiler-linux-amd64/lyangpiler-linux-amd64.tar.gz
         asset_name: lyangpiler-linux-amd64.tar.gz
         asset_content_type: application/gzip
-        
+
     - name: Upload Windows Asset
       uses: actions/upload-release-asset@v1
       env:
@@ -112,7 +116,7 @@ jobs:
         asset_path: ./lyangpiler-windows-amd64/lyangpiler-windows-amd64.zip
         asset_name: lyangpiler-windows-amd64.zip
         asset_content_type: application/zip
-        
+
     - name: Upload macOS Asset
       uses: actions/upload-release-asset@v1
       env:

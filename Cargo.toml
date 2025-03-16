@@ -3,13 +3,20 @@ name = "lyangpiler"
 version = "0.1.0"
 authors = ["LyangLang Team"]
 edition = "2021"
-description = "Lyangpiler - A VM for the LyangLang programming language"
+description = "Lyangpiler - A VM for the LyangLang programming language with native Nepali syntax"
 readme = "README.md"
 homepage = "https://github.com/konseptt/LyangLang"
 repository = "https://github.com/konseptt/LyangLang"
 license = "MIT"
 keywords = ["programming-language", "nepali", "interpreter", "vm", "bytecode"]
 categories = ["compilers", "development-tools"]
+documentation = "https://github.com/konseptt/LyangLang/wiki"
+exclude = [
+    "examples/*",
+    "tests/*",
+    ".github/*",
+    "package_release.*",
+]
 
 [[bin]]
 name = "lyangpiler"
@@ -17,6 +24,8 @@ path = "src/main.rs"
 
 [dependencies]
 thiserror = "1.0"
+clap = { version = "4.4", features = ["derive"] }
+dirs = "5.0"
 
 [profile.release]
 opt-level = 3

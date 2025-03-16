@@ -1,18 +1,17 @@
-use std::fmt;
+use std::io;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum NepalError {
+    #[error("Lexical error: {0}")]
     LexError(&'static str),
-    ParseError(&'static str),
-    RuntimeError(&'static str),
-}
 
-impl fmt::Display for NepalError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            NepalError::LexError(msg) => write!(f, "Lexer Error: {}", msg),
-            NepalError::ParseError(msg) => write!(f, "Parser Error: {}", msg),
-            NepalError::RuntimeError(msg) => write!(f, "Runtime Error: {}", msg),
-        }
-    }
+    #[error("Parse error: {0}")]
+    ParseError(&'static str),
+
+    #[error("Runtime error: {0}")]
+    RuntimeError(&'static str),
+
+    #[error("IO error: {0}")]
+    IoError(#[from] io::Error),
 }
