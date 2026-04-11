@@ -17,6 +17,8 @@ pub enum Opcode {
     // Arithmetic operations
     Add,
     Subtract,
+    Multiply,
+    Divide,
     
     // String operations
     Concat,

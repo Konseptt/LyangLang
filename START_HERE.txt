@@ -1,0 +1,32 @@
+Lyangpiler (LyangLang) — start here
+====================================
+
+FASTEST (internet): copy ONE line into Terminal / PowerShell
+-------------------------------------------------------------
+  Mac / Linux:
+    curl -fsSL https://raw.githubusercontent.com/konseptt/LyangLang/main/install.sh | bash
+
+  Windows (PowerShell):
+    irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex
+
+  If PowerShell blocks scripts, use:
+    powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex"
+
+
+YOU DOWNLOADED THIS ZIP / TAR (no second download)
+--------------------------------------------------
+  Windows: double-click install.cmd  (adds this folder to your PATH)
+
+  Mac / Linux: in this folder, run:
+    bash install-from-folder.sh
+    source ~/.lyangpiler/enable.sh
+    lyangpiler --help
+
+
+THEN TRY
+--------
+  lyangpiler new myapp
+  cd myapp
+  lyangpiler run main.nbh --vm
+
+Full docs: README.md in this folder or https://github.com/konseptt/LyangLang

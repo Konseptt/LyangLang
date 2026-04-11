@@ -33,6 +33,7 @@ impl Lexer {
             // Try to match keywords from longest to shortest to avoid partial matches
             match self.peek_char() {
                 'b' if self.match_keyword("bhane") => tokens.push(Token::Bhane),
+                'b' if self.match_keyword("bhag") => tokens.push(Token::Bhag),
                 'b' if self.match_keyword("babaal") => tokens.push(Token::Babaal),
                 'b' if self.match_keyword("bol mug") => tokens.push(Token::BolMug),
                 'b' if self.match_keyword("bhan") => tokens.push(Token::Bhan),
@@ -40,8 +41,10 @@ impl Lexer {
                 'm' if self.match_keyword("mug") => tokens.push(Token::Mug),
                 'j' if self.match_keyword("jod") => tokens.push(Token::Jod),
                 'g' if self.match_keyword("ghata") => tokens.push(Token::Ghata),
+                'g' if self.match_keyword("guna") => tokens.push(Token::Guna),
                 'l' if self.match_keyword("lai") => tokens.push(Token::Lai),
                 'l' if self.match_keyword("laamo") => tokens.push(Token::Laamo),
+                'y' if self.match_keyword("yadi") => tokens.push(Token::Yedi),
                 'y' if self.match_keyword("yedi") => tokens.push(Token::Yedi),
                 's' if self.match_keyword("sakiyo") => tokens.push(Token::Sakiyo),
                 'a' if self.match_keyword("aile") => tokens.push(Token::Aile),
@@ -75,7 +78,7 @@ impl Lexer {
                 '"' => {
                     tokens.push(Token::String(self.read_string()?));
                 }
-                c if c.is_alphabetic() => {
+                c if c.is_alphabetic() || c == '_' => {
                     tokens.push(Token::Identifier(self.read_identifier()));
                 }
                 c if c.is_numeric() => {
@@ -98,7 +101,7 @@ impl Lexer {
     fn match_keyword(&mut self, keyword: &str) -> bool {
         let chars: Vec<char> = keyword.chars().collect();
         if self.input[self.position..].starts_with(&chars) {
-            self.position += keyword.len();
+            self.position += chars.len();
             true
         } else {
             false
@@ -113,8 +116,13 @@ impl Lexer {
 
     fn read_identifier(&mut self) -> String {
         let start = self.position;
-        while self.position < self.input.len() && self.input[self.position].is_alphabetic() {
-            self.position += 1;
+        while self.position < self.input.len() {
+            let c = self.input[self.position];
+            if c.is_alphanumeric() || c == '_' {
+                self.position += 1;
+            } else {
+                break;
+            }
         }
         self.input[start..self.position].iter().collect()
     }
@@ -146,5 +154,36 @@ impl Lexer {
         while self.position < self.input.len() && !matches!(self.input[self.position], '\n' | '\r') {
             self.position += 1;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn yadi_maps_to_same_token_as_yedi() {
+        let mut a = Lexer::new("yadi");
+        let mut b = Lexer::new("yedi");
+        assert_eq!(a.tokenize().unwrap(), vec![Token::Yedi]);
+        assert_eq!(b.tokenize().unwrap(), vec![Token::Yedi]);
+    }
+
+    #[test]
+    fn identifier_allows_digits_and_underscore() {
+        let mut l = Lexer::new("num_1 num2");
+        assert_eq!(
+            l.tokenize().unwrap(),
+            vec![
+                Token::Identifier("num_1".into()),
+                Token::Identifier("num2".into()),
+            ]
+        );
+    }
+
+    #[test]
+    fn guna_bhag_keywords() {
+        let mut l = Lexer::new("guna bhag");
+        assert_eq!(l.tokenize().unwrap(), vec![Token::Guna, Token::Bhag]);
     }
 }

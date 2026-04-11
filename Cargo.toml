@@ -12,10 +12,8 @@ keywords = ["programming-language", "nepali", "interpreter", "vm", "bytecode"]
 categories = ["compilers", "development-tools"]
 documentation = "https://github.com/konseptt/LyangLang/wiki"
 exclude = [
-    "examples/*",
     "tests/*",
     ".github/*",
-    "package_release.*",
 ]
 
 [[bin]]

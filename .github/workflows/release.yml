@@ -83,16 +83,16 @@ jobs:
           # Copy binaries and scripts
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             cp target/${{ matrix.target }}/release/lyangpiler.exe release/lyangpiler/
-            cp lyangpiler.cmd release/lyangpiler/
           else
             cp target/${{ matrix.target }}/release/lyangpiler release/lyangpiler/
-            cp lyangpiler release/lyangpiler/
             chmod +x release/lyangpiler/lyangpiler
           fi
           
-          # Copy documentation and examples
+          # Copy documentation, examples, and installers (offline + one-liner helpers)
           cp README.md release/lyangpiler/
           cp example.nbh release/lyangpiler/ || true
+          cp install.sh install-from-folder.sh install.ps1 install.cmd START_HERE.txt release/lyangpiler/ || true
+          chmod +x release/lyangpiler/install-from-folder.sh || true
           
           # Create archive
           cd release

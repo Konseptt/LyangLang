@@ -3,7 +3,7 @@ use crate::error::NepalError;
 use std::io::{self, Write};
 
 /// Runtime value representation in the VM
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Value {
     Number(i32),
     String(String),
@@ -158,6 +158,53 @@ impl VM {
                         _ => {
                             return Err(NepalError::RuntimeError(
                                 "Type error: Cannot subtract these types"
+                            ));
+                        }
+                    }
+                    
+                    self.ip += 1;
+                },
+                
+                Opcode::Multiply => {
+                    if self.stack.len() < 2 {
+                        return Err(NepalError::RuntimeError("Stack underflow"));
+                    }
+                    
+                    let b = self.stack.pop().unwrap();
+                    let a = self.stack.pop().unwrap();
+                    
+                    match (a, b) {
+                        (Value::Number(a_val), Value::Number(b_val)) => {
+                            self.stack.push(Value::Number(a_val * b_val));
+                        },
+                        _ => {
+                            return Err(NepalError::RuntimeError(
+                                "Type error: Cannot multiply these types"
+                            ));
+                        }
+                    }
+                    
+                    self.ip += 1;
+                },
+                
+                Opcode::Divide => {
+                    if self.stack.len() < 2 {
+                        return Err(NepalError::RuntimeError("Stack underflow"));
+                    }
+                    
+                    let b = self.stack.pop().unwrap();
+                    let a = self.stack.pop().unwrap();
+                    
+                    match (a, b) {
+                        (Value::Number(a_val), Value::Number(b_val)) => {
+                            if b_val == 0 {
+                                return Err(NepalError::RuntimeError("Division by zero"));
+                            }
+                            self.stack.push(Value::Number(a_val / b_val));
+                        },
+                        _ => {
+                            return Err(NepalError::RuntimeError(
+                                "Type error: Cannot divide these types"
                             ));
                         }
                     }
@@ -350,5 +397,56 @@ impl VM {
         self.running = false;
         // Clear variables to default values
         self.variables = vec![Value::Number(0); self.variables.len()];
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::StrSegment;
+    use crate::ast::Statement;
+    use crate::ast::Value as AstValue;
+    use crate::compiler::Compiler;
+
+    #[test]
+    fn string_concat_vm_matches_literal_space() {
+        let stmts = vec![
+            Statement::Declaration("firstName".into(), AstValue::String("Ram".into())),
+            Statement::Declaration("lastName".into(), AstValue::String("Bahadur".into())),
+            Statement::StringConcat(
+                "fullName".into(),
+                vec![
+                    StrSegment::Identifier("firstName".into()),
+                    StrSegment::Literal(" ".into()),
+                    StrSegment::Identifier("lastName".into()),
+                ],
+            ),
+        ];
+        let mut c = Compiler::new();
+        let program = c.compile(stmts).unwrap();
+        let mut vm = VM::new(program);
+        vm.run().unwrap();
+        let idx = vm
+            .program
+            .variable_names
+            .iter()
+            .position(|n| n == "fullName")
+            .unwrap();
+        assert_eq!(vm.variables[idx], Value::String("Ram Bahadur".into()));
+    }
+
+    #[test]
+    fn multiplication_chain() {
+        let stmts = vec![
+            Statement::Declaration("a".into(), AstValue::Number(3)),
+            Statement::Declaration("b".into(), AstValue::Number(4)),
+            Statement::Multiplication("p".into(), vec!["a".into(), "b".into()]),
+        ];
+        let mut c = Compiler::new();
+        let program = c.compile(stmts).unwrap();
+        let mut vm = VM::new(program);
+        vm.run().unwrap();
+        let i = vm.program.variable_names.iter().position(|n| n == "p").unwrap();
+        assert_eq!(vm.variables[i], Value::Number(12));
     }
 }

@@ -1,4 +1,4 @@
-use crate::ast::{Statement, Value as AstValue, Condition};
+use crate::ast::{Statement, Value as AstValue, Condition, StrSegment};
 use crate::bytecode::{BytecodeProgram, Opcode};
 use crate::error::NepalError;
 
@@ -38,6 +38,12 @@ impl Compiler {
             Statement::Subtraction(target, sources) => {
                 self.compile_subtraction(target, sources)?;
             },
+            Statement::Multiplication(target, sources) => {
+                self.compile_multiplication(target, sources)?;
+            }
+            Statement::Division(target, sources) => {
+                self.compile_division(target, sources)?;
+            }
             Statement::StringConcat(target, parts) => {
                 self.compile_string_concat(target, parts)?;
             },
@@ -124,45 +130,81 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_string_concat(&mut self, target: String, parts: Vec<String>) -> Result<(), NepalError> {
+    fn compile_multiplication(&mut self, target: String, sources: Vec<String>) -> Result<(), NepalError> {
+        if sources.is_empty() {
+            return Err(NepalError::RuntimeError(
+                "Multiplication requires at least one source variable",
+            ));
+        }
+
+        let target_idx = self.program.add_variable(target);
+        let first_var_idx = self.program.add_variable(sources[0].clone());
+        self.program.add_instruction(Opcode::LoadVariable(first_var_idx), self.current_line);
+
+        for i in 1..sources.len() {
+            let src_var_idx = self.program.add_variable(sources[i].clone());
+            self.program.add_instruction(Opcode::LoadVariable(src_var_idx), self.current_line);
+            self.program.add_instruction(Opcode::Multiply, self.current_line);
+        }
+
+        self.program.add_instruction(Opcode::StoreVariable(target_idx), self.current_line);
+        Ok(())
+    }
+
+    fn compile_division(&mut self, target: String, sources: Vec<String>) -> Result<(), NepalError> {
+        if sources.is_empty() {
+            return Err(NepalError::RuntimeError(
+                "Division requires at least one source variable",
+            ));
+        }
+
+        let target_idx = self.program.add_variable(target);
+        let first_var_idx = self.program.add_variable(sources[0].clone());
+        self.program.add_instruction(Opcode::LoadVariable(first_var_idx), self.current_line);
+
+        for i in 1..sources.len() {
+            let src_var_idx = self.program.add_variable(sources[i].clone());
+            self.program.add_instruction(Opcode::LoadVariable(src_var_idx), self.current_line);
+            self.program.add_instruction(Opcode::Divide, self.current_line);
+        }
+
+        self.program.add_instruction(Opcode::StoreVariable(target_idx), self.current_line);
+        Ok(())
+    }
+
+    fn compile_string_concat(&mut self, target: String, parts: Vec<StrSegment>) -> Result<(), NepalError> {
         if parts.is_empty() {
             return Err(NepalError::RuntimeError("String concatenation requires at least one part"));
         }
         
         let target_idx = self.program.add_variable(target);
         
-        // Push the first part - could be a string literal or variable
-        let first_part = &parts[0];
-        if first_part.starts_with('"') && first_part.ends_with('"') {
-            // String literal
-            let str_value = &first_part[1..first_part.len() - 1];
-            let str_idx = self.program.add_string(str_value.to_string());
-            self.program.add_instruction(Opcode::PushString(str_idx), self.current_line);
-        } else {
-            // Variable
-            let var_idx = self.program.add_variable(first_part.clone());
-            self.program.add_instruction(Opcode::LoadVariable(var_idx), self.current_line);
-        }
-        
-        // Process remaining parts
-        for i in 1..parts.len() {
-            let part = &parts[i];
-            if part.starts_with('"') && part.ends_with('"') {
-                // String literal
-                let str_value = &part[1..part.len() - 1];
-                let str_idx = self.program.add_string(str_value.to_string());
+        match &parts[0] {
+            StrSegment::Literal(s) => {
+                let str_idx = self.program.add_string(s.clone());
                 self.program.add_instruction(Opcode::PushString(str_idx), self.current_line);
-            } else {
-                // Variable
-                let var_idx = self.program.add_variable(part.clone());
+            }
+            StrSegment::Identifier(name) => {
+                let var_idx = self.program.add_variable(name.clone());
                 self.program.add_instruction(Opcode::LoadVariable(var_idx), self.current_line);
             }
+        }
+        
+        for part in parts.iter().skip(1) {
+            match part {
+                StrSegment::Literal(s) => {
+                    let str_idx = self.program.add_string(s.clone());
+                    self.program.add_instruction(Opcode::PushString(str_idx), self.current_line);
+                }
+                StrSegment::Identifier(name) => {
+                    let var_idx = self.program.add_variable(name.clone());
+                    self.program.add_instruction(Opcode::LoadVariable(var_idx), self.current_line);
+                }
+            }
             
-            // Concatenate with the previous result
             self.program.add_instruction(Opcode::Concat, self.current_line);
         }
         
-        // Store the result in the target variable
         self.program.add_instruction(Opcode::StoreVariable(target_idx), self.current_line);
         
         Ok(())

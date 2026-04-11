@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Token {
     OiMug,
     BolMug,
@@ -9,7 +9,9 @@ pub enum Token {
     Plus,
     Bhan,
     Jod,
-    Ghata,  // New: for subtraction
+    Ghata,
+    Guna,
+    Bhag,
     Lai,
     Equals,
     Comma,

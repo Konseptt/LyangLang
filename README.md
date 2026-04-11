@@ -6,9 +6,47 @@ A programming language featuring natural Nepali syntax, designed to help Nepali 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Build Status](https://img.shields.io/github/workflow/status/konseptt/LyangLang/Build)
 
+## Get Lyangpiler in one step
+
+**From the terminal (recommended)** — copy one block, paste, press Enter.
+
+**Mac or Linux**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/konseptt/LyangLang/main/install.sh | bash
+```
+
+**Windows (PowerShell)**
+
+```powershell
+irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex
+```
+
+**Windows if scripts are blocked**
+
+```powershell
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex"
+```
+
+**One-click download** — save the file for your computer, extract it, then:
+
+- **Windows:** open the `lyangpiler` folder and **double-click `install.cmd`** (or open `START_HERE.txt`).
+- **Mac / Linux:** open Terminal in the extracted `lyangpiler` folder and run `bash install-from-folder.sh`, then `source ~/.lyangpiler/enable.sh`.
+
+| System | Direct download (latest release) |
+|--------|----------------------------------|
+| Windows 64-bit | [lyangpiler-windows-x86_64.zip](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-windows-x86_64.zip) |
+| Linux 64-bit Intel/AMD | [lyangpiler-linux-x86_64.tar.gz](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-linux-x86_64.tar.gz) |
+| Linux 64-bit ARM | [lyangpiler-linux-aarch64.tar.gz](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-linux-aarch64.tar.gz) |
+| macOS Apple Silicon | [lyangpiler-macos-aarch64.tar.gz](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-macos-aarch64.tar.gz) |
+| macOS Intel | [lyangpiler-macos-x86_64.tar.gz](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-macos-x86_64.tar.gz) |
+
+After the terminal installer finishes, Mac/Linux can run **`source ~/.lyangpiler/enable.sh`** once in that same window so `lyangpiler` works immediately without opening a new terminal.
+
 ## Table of Contents
 
 - [Features](#features)
+- [Get Lyangpiler in one step](#get-lyangpiler-in-one-step)
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Windows](#windows)
@@ -80,48 +118,43 @@ A programming language featuring natural Nepali syntax, designed to help Nepali 
 
 ## Installation
 
+### Fastest way to try (binary, no Rust)
+
+Use the **Get Lyangpiler in one step** section at the top of this page (terminal one-liners and download links).
+
+**Any OS with Docker:**
+
+```bash
+docker build -t lyangpiler .
+docker run --rm -v "$PWD:/work" -w /work lyangpiler run ./example.nbh --vm
+```
+
+**Any OS with Rust already installed:**
+
+```bash
+cargo install --git https://github.com/konseptt/LyangLang.git --locked
+```
+
+After a binary install: on **Mac/Linux** run `source ~/.lyangpiler/enable.sh` in the same terminal to use `lyangpiler` immediately, or open a new terminal. On **Windows**, the installer updates `PATH` for the current PowerShell window so `lyangpiler` usually works at once. If the command is not found, confirm `~/.lyangpiler/bin` or `%USERPROFILE%\.lyangpiler\bin` is on your `PATH`.
+
+Release archives use names like `lyangpiler-linux-x86_64.tar.gz`, `lyangpiler-macos-aarch64.tar.gz`, and `lyangpiler-windows-x86_64.zip` (see [Releases](https://github.com/konseptt/LyangLang/releases/latest)). Older releases may use `*-amd64*` names; the install scripts try those as a fallback on Linux/mac x86_64.
+
 ### Prerequisites
 
-- Rust toolchain (for building from source)
-- Cargo package manager
-- Basic command line familiarity
+- **Binary install:** none (uses `curl` or `wget` on Unix, built-in PowerShell on Windows).
+- **Build from source:** Rust toolchain and Cargo.
 
 ### Windows
 
-1. Using the installer script:
-```powershell
-.\install.ps1
-```
-
-2. Manual installation:
-```powershell
-cargo build --release
-copy target\release\lyangpiler.exe %PATH%
-```
-
-3. Using pre-built binary:
-   - Download the latest `lyangpiler-windows-amd64.zip` from the releases page
-   - Extract the zip file
-   - Run `install.cmd` from the extracted folder
-   - Alternatively, add the extracted folder to your PATH manually
+1. **Recommended:** one-liner in PowerShell (see [Get Lyangpiler in one step](#get-lyangpiler-in-one-step)).
+2. **From a release zip:** download `lyangpiler-windows-x86_64.zip`, extract it, then run `install.cmd` from inside the `lyangpiler` folder (or add that folder to your PATH manually).
+3. **From source:** clone the repo, then `cargo build --release` and copy `target\release\lyangpiler.exe` to a directory on your PATH.
 
 ### Linux/macOS
 
-1. Using the installer script:
-```bash
-./install.sh
-```
-
-2. Manual installation:
-```bash
-cargo build --release
-sudo cp target/release/lyangpiler /usr/local/bin/
-```
-
-3. Using pre-built binary:
-   - Download the latest `lyangpiler-linux-amd64.tar.gz` (Linux) or `lyangpiler-macos-amd64.tar.gz` (macOS) from the releases page
-   - Extract the archive: `tar -xzf lyangpiler-*-amd64.tar.gz`
-   - Run the installation script: `cd lyangpiler && ./install.sh`
+1. **Recommended:** one-liner with `curl` (see [Get Lyangpiler in one step](#get-lyangpiler-in-one-step)).
+2. **From a release tarball:** download the matching `lyangpiler-*-*.tar.gz` for your OS and CPU, extract it, and run `./install.sh` from the repository if you cloned it, or put the `lyangpiler` binary on your PATH.
+3. **From source:** `cargo build --release` and copy `target/release/lyangpiler` to a directory on your PATH (for example `/usr/local/bin`).
 
 ### Building from Source
 
@@ -145,20 +178,7 @@ chmod +x target/release/lyangpiler
 
 ### Quick Installation
 
-For a quicker installation that sets up your system:
-
-#### Windows
-```bash
-.\package_release.cmd
-```
-Then extract the resulting zip file and run `install.cmd` from the extracted folder. This will add the Lyangpiler to your PATH automatically.
-
-#### Linux/macOS
-```bash
-chmod +x package_release.sh
-./package_release.sh
-```
-Then extract the resulting tar.gz file and run `install.sh` from the extracted folder. This will configure your shell profile to include the Lyangpiler in your PATH.
+If you already downloaded a release archive, extract it and run `install.cmd` (Windows) from inside the `lyangpiler` folder, or use the one-line installers in [Fastest way to try](#fastest-way-to-try-binary-no-rust) so `lyangpiler` is on your `PATH`.
 
 ## Running Programs
 
@@ -172,22 +192,24 @@ lyangpiler your_program.nbh
 ### Using the Command Line
 
 #### Windows
-```bash
+```powershell
 # Run with the interpreter
-lyangpiler.cmd your_program.nbh
+lyangpiler.exe your_program.nbh
 
 # Run with the Lyangpiler VM (recommended)
-lyangpiler.cmd your_program.nbh --vm
+lyangpiler.exe your_program.nbh --vm
 ```
 
 #### Linux/macOS
 ```bash
-# Run with the interpreter
-./lyangpiler your_program.nbh
+# Run with the interpreter (use full path when developing from a clone)
+./target/release/lyangpiler your_program.nbh
 
 # Run with the Lyangpiler VM (recommended)
-./lyangpiler your_program.nbh --vm
+./target/release/lyangpiler your_program.nbh --vm
 ```
+
+After a normal install, use the `lyangpiler` command from your `PATH` instead of `./target/release/lyangpiler`.
 
 ### Command Line Arguments
 
@@ -198,10 +220,10 @@ lyangpiler.cmd your_program.nbh --vm
 
 ```bash
 # Windows
-lyangpiler.cmd example.nbh --vm
+lyangpiler.exe example.nbh --vm
 
-# Linux/macOS
-./lyangpiler example.nbh --vm
+# Linux/macOS (from repo clone before install)
+./target/release/lyangpiler example.nbh --vm
 ```
 
 ### Command Line Interface
@@ -648,12 +670,7 @@ src/
   ├── error.rs     # Error handling definitions
   ├── interpreter.rs # Direct interpreter (alternative to VM)
   └── main.rs      # Entry point and CLI handling
-examples/
-  ├── hello.nbh    # Example programs
-  ├── calculator.nbh
-  └── loops.nbh
-tests/
-  └── integration_tests.rs  # Integration tests
+example.nbh        # Sample program at repo root
 ```
 
 ## Development
@@ -668,7 +685,7 @@ cd LyangLang
 cargo build --release
 
 # Run the executable
-./target/release/lyangpiler examples/hello.nbh --vm
+./target/release/lyangpiler example.nbh --vm
 ```
 
 ### Running Tests
@@ -721,7 +738,7 @@ cargo test -- --nocapture
 ### Getting Help
 - Open an issue on the [project repository](https://github.com/konseptt/LyangLang)
 - Check existing documentation in the [wiki](https://github.com/konseptt/LyangLang/wiki)
-- Review example programs in the `examples/` directory
+- Try `example.nbh` in the repository root
 - Join the community discussions in the [forums](https://github.com/konseptt/LyangLang/discussions)
 
 ## License
