@@ -5,12 +5,12 @@ authors = ["LyangLang Team"]
 edition = "2021"
 description = "Lyangpiler - A VM for the LyangLang programming language with native Nepali syntax"
 readme = "README.md"
-homepage = "https://github.com/konseptt/LyangLang"
-repository = "https://github.com/konseptt/LyangLang"
+homepage = "https://github.com/Konseptt/LyangLang"
+repository = "https://github.com/Konseptt/LyangLang"
 license = "MIT"
 keywords = ["programming-language", "nepali", "interpreter", "vm", "bytecode"]
 categories = ["compilers", "development-tools"]
-documentation = "https://github.com/konseptt/LyangLang/wiki"
+documentation = "https://github.com/Konseptt/LyangLang/wiki"
 exclude = [
     "tests/*",
     ".github/*",

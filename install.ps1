@@ -1,13 +1,13 @@
 # LyangLang / Lyangpiler — install prebuilt binary for Windows (user PATH).
 #
 # Usage (PowerShell):
-#   irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.ps1 | iex
 #
 # Override repo:  $env:LYANGLANG_REPO = 'owner/LyangLang'; irm ... | iex
 
 $ErrorActionPreference = 'Stop'
 
-$repo = if ($env:LYANGLANG_REPO) { $env:LYANGLANG_REPO } else { 'konseptt/LyangLang' }
+$repo = if ($env:LYANGLANG_REPO) { $env:LYANGLANG_REPO } else { 'Konseptt/LyangLang' }
 $base = "https://github.com/$repo/releases/latest/download"
 
 Write-Host "Installing Lyangpiler (LyangLang)..." -ForegroundColor Blue
@@ -88,7 +88,7 @@ try {
     Write-Host "Installed to: $installedExe" -ForegroundColor Green
     Write-Host "PATH updated for this window — you can run lyangpiler now." -ForegroundColor Green
     Write-Host ""
-    Write-Host "--- lyangpiler --help ---" -ForegroundColor DarkGray
+    Write-Host "--- lyangpiler --help ---" -ForegroundColor Gray
     & $installedExe --help
     Write-Host ""
     Write-Host "Try: lyangpiler new demo; cd demo; lyangpiler run main.nbh --vm"

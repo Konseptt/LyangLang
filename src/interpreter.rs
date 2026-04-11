@@ -113,14 +113,15 @@ impl Interpreter {
                 let execute = match condition {
                     Condition::Equals(var1, string_literal) => {
                         if let Some(Value::String(input)) = self.variables.get(&var1) {
-                            input == &string_literal
+                            // Case-insensitive so "Rato" matches yedi ... "rato" (common chat typing).
+                            input.to_lowercase() == string_literal.to_lowercase()
                         } else {
                             false
                         }
                     }
                     Condition::NotEquals(var1, string_literal) => {
                         if let Some(Value::String(input)) = self.variables.get(&var1) {
-                            input != &string_literal
+                            input.to_lowercase() != string_literal.to_lowercase()
                         } else {
                             false
                         }

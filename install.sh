@@ -2,7 +2,7 @@
 # LyangLang / Lyangpiler — install prebuilt binary to user directory and add to PATH.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/konseptt/LyangLang/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.sh | bash
 #   bash install.sh
 #
 # Override repo:   LYANGLANG_REPO=owner/LyangLang bash install.sh
@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-REPO="${LYANGLANG_REPO:-konseptt/LyangLang}"
+REPO="${LYANGLANG_REPO:-Konseptt/LyangLang}"
 BASE="https://github.com/${REPO}/releases/latest/download"
 
 echo -e "${BLUE}Installing Lyangpiler (LyangLang)…${NC}"

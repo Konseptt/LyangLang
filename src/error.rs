@@ -13,15 +13,18 @@ pub enum NepalError {
     RuntimeError(&'static str),
 
     #[error("Type error: {0}")]
+    #[allow(dead_code)]
     TypeError(&'static str),
-    
+
     #[error("Name error: {0}")]
+    #[allow(dead_code)]
     NameError(&'static str),
     
     #[error("IO error: {0}")]
     IoError(#[from] io::Error),
     
     #[error("Error at line {line}: {error_type}\nDetails: {message}\nCode: {code}\n{pointer}")]
+    #[allow(dead_code)]
     FormattedError {
         line: usize,
         error_type: String,
@@ -33,6 +36,7 @@ pub enum NepalError {
 
 impl NepalError {
     /// Create a formatted error with line number and code snippet
+    #[allow(dead_code)]
     pub fn with_location(
         error: NepalError, 
         line: usize, 
@@ -57,6 +61,7 @@ impl NepalError {
     }
     
     /// Convert standard Nepali error messages
+    #[allow(dead_code)]
     pub fn to_nepali_message(&self) -> String {
         match self {
             NepalError::NameError(_) => "अपरिभाषित चर".to_string(),

@@ -4,13 +4,13 @@ Lyangpiler (LyangLang) — start here
 FASTEST (internet): copy ONE line into Terminal / PowerShell
 -------------------------------------------------------------
   Mac / Linux:
-    curl -fsSL https://raw.githubusercontent.com/konseptt/LyangLang/main/install.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.sh | bash
 
   Windows (PowerShell):
-    irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex
+    irm https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.ps1 | iex
 
   If PowerShell blocks scripts, use:
-    powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex"
+    powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.ps1 | iex"
 
 
 YOU DOWNLOADED THIS ZIP / TAR (no second download)
@@ -29,4 +29,4 @@ THEN TRY
   cd myapp
   lyangpiler run main.nbh --vm
 
-Full docs: README.md in this folder or https://github.com/konseptt/LyangLang
+Full docs: README.md in this folder or https://github.com/Konseptt/LyangLang

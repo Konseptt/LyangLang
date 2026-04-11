@@ -4,7 +4,7 @@ A programming language featuring natural Nepali syntax, designed to help Nepali 
 
 ![LyangLang](https://img.shields.io/badge/LyangLang-v0.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Build Status](https://img.shields.io/github/workflow/status/konseptt/LyangLang/Build)
+![Build](https://img.shields.io/github/actions/workflow/status/Konseptt/LyangLang/build.yml?branch=main&label=build)
 
 ## Get Lyangpiler in one step
 
@@ -13,19 +13,19 @@ A programming language featuring natural Nepali syntax, designed to help Nepali 
 **Mac or Linux**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/konseptt/LyangLang/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.sh | bash
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.ps1 | iex
 ```
 
 **Windows if scripts are blocked**
 
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/konseptt/LyangLang/main/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.ps1 | iex"
 ```
 
 **One-click download** — save the file for your computer, extract it, then:
@@ -35,15 +35,15 @@ powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.c
 
 | System | Direct download (latest release) |
 |--------|----------------------------------|
-| Windows 64-bit | [lyangpiler-windows-x86_64.zip](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-windows-x86_64.zip) |
-| Linux 64-bit Intel/AMD | [lyangpiler-linux-x86_64.tar.gz](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-linux-x86_64.tar.gz) |
-| Linux 64-bit ARM | [lyangpiler-linux-aarch64.tar.gz](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-linux-aarch64.tar.gz) |
-| macOS Apple Silicon | [lyangpiler-macos-aarch64.tar.gz](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-macos-aarch64.tar.gz) |
-| macOS Intel | [lyangpiler-macos-x86_64.tar.gz](https://github.com/konseptt/LyangLang/releases/latest/download/lyangpiler-macos-x86_64.tar.gz) |
+| Windows 64-bit | [lyangpiler-windows-x86_64.zip](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-windows-x86_64.zip) |
+| Linux 64-bit Intel/AMD | [lyangpiler-linux-x86_64.tar.gz](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-linux-x86_64.tar.gz) |
+| Linux 64-bit ARM | [lyangpiler-linux-aarch64.tar.gz](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-linux-aarch64.tar.gz) |
+| macOS Apple Silicon | [lyangpiler-macos-aarch64.tar.gz](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-macos-aarch64.tar.gz) |
+| macOS Intel | [lyangpiler-macos-x86_64.tar.gz](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-macos-x86_64.tar.gz) |
 
 After the terminal installer finishes, Mac/Linux can run **`source ~/.lyangpiler/enable.sh`** once in that same window so `lyangpiler` works immediately without opening a new terminal.
 
-**Note:** The one-line installer only works when the [latest GitHub Release](https://github.com/konseptt/LyangLang/releases/latest) includes prebuilt `.zip` / `.tar.gz` files. If the release has no assets yet, use **`cargo install --git https://github.com/konseptt/LyangLang.git --locked`** (needs [Rust](https://rustup.rs/)).
+**Note:** The one-line installer only works when the [latest GitHub Release](https://github.com/Konseptt/LyangLang/releases/latest) includes prebuilt `.zip` / `.tar.gz` files. If the release has no assets yet, use **`cargo install --git https://github.com/Konseptt/LyangLang.git --locked`** (needs [Rust](https://rustup.rs/)).
 
 ## Table of Contents
 
@@ -101,14 +101,13 @@ After the terminal installer finishes, Mac/Linux can run **`source ~/.lyangpiler
 
 - **Bytecode Virtual Machine**: The Lyangpiler VM offers efficient execution with precompiled bytecode for optimal performance across different platforms. The VM is stack-based with a clean and simple architecture.
 
-- **Comprehensive Programming Constructs**: 
-  - Variables and data types (numbers, text, boolean)
-  - Arithmetic operations (`jod` for add, `ghata` for subtract, `guna` for multiply, `bhag` for divide)
-  - String manipulation and concatenation using `+` operator
-  - Input/output operations with console through `bol mug` and `oi mug bhan`
-  - Conditional statements with `yadi`/`natra`/`sakiyo` (if/else/end)
-  - Loops and iteration using `ghumu` (for loop) and `jabsamma` (while loop)
-  - Functions and subroutines with `kaam` declarations
+- **Programming constructs (current Lyangpiler)**:
+  - Variables and assignments (`oi mug`, `mug jod` / `ghata` / `guna` / `bhag` … `lai`)
+  - Arithmetic: `jod`, `ghata`, `guna`, `bhag`
+  - Strings and `+` concatenation; `bol mug` and `oi mug bhan` for I/O
+  - Conditionals: `yedi` / `yadi`, `aile feri`, `sakiyo` with string comparisons (case-insensitive)
+  - `//` line comments
+- **Language guide** sections below also describe **planned** features (e.g. `ghumu`, `jabsamma`, `kaam`, richer `yadi`/`natra`) that are **not all implemented** in this repository yet—use `lyangpiler check` on `.nbh` files to confirm what parses today.
 
 - **Error Handling**: Comprehensive error messages in English with clear line indicators and detailed explanations for debugging.
 
@@ -134,12 +133,12 @@ docker run --rm -v "$PWD:/work" -w /work lyangpiler run ./example.nbh --vm
 **Any OS with Rust already installed:**
 
 ```bash
-cargo install --git https://github.com/konseptt/LyangLang.git --locked
+cargo install --git https://github.com/Konseptt/LyangLang.git --locked
 ```
 
 After a binary install: on **Mac/Linux** run `source ~/.lyangpiler/enable.sh` in the same terminal to use `lyangpiler` immediately, or open a new terminal. On **Windows**, the installer updates `PATH` for the current PowerShell window so `lyangpiler` usually works at once. If the command is not found, confirm `~/.lyangpiler/bin` or `%USERPROFILE%\.lyangpiler\bin` is on your `PATH`.
 
-Release archives use names like `lyangpiler-linux-x86_64.tar.gz`, `lyangpiler-macos-aarch64.tar.gz`, and `lyangpiler-windows-x86_64.zip` (see [Releases](https://github.com/konseptt/LyangLang/releases/latest)). Older releases may use `*-amd64*` names; the install scripts try those as a fallback on Linux/mac x86_64.
+Release archives use names like `lyangpiler-linux-x86_64.tar.gz`, `lyangpiler-macos-aarch64.tar.gz`, and `lyangpiler-windows-x86_64.zip` (see [Releases](https://github.com/Konseptt/LyangLang/releases/latest)). Older releases may use `*-amd64*` names; the install scripts try those as a fallback on Linux/mac x86_64.
 
 ### Prerequisites
 
@@ -162,7 +161,7 @@ Release archives use names like `lyangpiler-linux-x86_64.tar.gz`, `lyangpiler-ma
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/konseptt/LyangLang.git
+git clone https://github.com/Konseptt/LyangLang.git
 cd LyangLang
 ```
 
@@ -180,52 +179,52 @@ chmod +x target/release/lyangpiler
 
 ### Quick Installation
 
-If you already downloaded a release archive, extract it and run `install.cmd` (Windows) from inside the `lyangpiler` folder, or use the one-line installers in [Fastest way to try](#fastest-way-to-try-binary-no-rust) so `lyangpiler` is on your `PATH`.
+If you already downloaded a release archive, extract it and run `install.cmd` (Windows) from inside the `lyangpiler` folder, or use the one-line installers in [Get Lyangpiler in one step](#get-lyangpiler-in-one-step) so `lyangpiler` is on your `PATH`.
 
 ## Running Programs
 
 1. Create a new file with `.nbh` extension
 2. Write your LyangLang code
-3. Run using the Lyangpiler:
+3. Run using the Lyangpiler (VM recommended):
 ```bash
-lyangpiler your_program.nbh
+lyangpiler run your_program.nbh --vm
+```
+
+Legacy shorthand (same as above when the first arg is a file):
+
+```bash
+lyangpiler your_program.nbh --vm
 ```
 
 ### Using the Command Line
 
 #### Windows
 ```powershell
-# Run with the interpreter
-lyangpiler.exe your_program.nbh
-
-# Run with the Lyangpiler VM (recommended)
-lyangpiler.exe your_program.nbh --vm
+# VM mode (recommended)
+lyangpiler.exe run your_program.nbh --vm
 ```
 
 #### Linux/macOS
 ```bash
-# Run with the interpreter (use full path when developing from a clone)
-./target/release/lyangpiler your_program.nbh
-
-# Run with the Lyangpiler VM (recommended)
-./target/release/lyangpiler your_program.nbh --vm
+# From a clone, before install:
+./target/release/lyangpiler run your_program.nbh --vm
 ```
 
-After a normal install, use the `lyangpiler` command from your `PATH` instead of `./target/release/lyangpiler`.
+After install, use `lyangpiler` from your `PATH` (same `run … --vm` commands).
 
 ### Command Line Arguments
 
-- First argument: Path to the LyangLang program file (.nbh)
-- Second argument (optional): `--vm` to use the Lyangpiler VM
+- **`run <file.nbh> [--vm]`** — run a program (`--vm` uses the bytecode VM; recommended)
+- **`<file.nbh> [--vm]`** — same as `run` when the first token is a path ending in `.nbh`
 
 ### Examples
 
 ```bash
 # Windows
-lyangpiler.exe example.nbh --vm
+lyangpiler.exe run example.nbh --vm
 
 # Linux/macOS (from repo clone before install)
-./target/release/lyangpiler example.nbh --vm
+./target/release/lyangpiler run example.nbh --vm
 ```
 
 ### Command Line Interface
@@ -641,7 +640,7 @@ Code: [Problematic code snippet]
 - `PRINT`: Output value to console
 - `INPUT`: Read user input from console
 - `JMP`: Conditional and unconditional jumps (`Jump`, `JumpIfTrue`, `JumpIfFalse`)
-- `CMP`: Compare values (`Equal`, `LessThan`, `GreaterThan`)
+- `CMP`: Compare values (`Equal`, `NotEqual`) on the VM today
 - `HALT`: Stop program execution
 
 ### Memory Management
@@ -673,6 +672,9 @@ src/
   ├── interpreter.rs # Direct interpreter (alternative to VM)
   └── main.rs      # Entry point and CLI handling
 example.nbh        # Sample program at repo root
+myapp/
+  ├── main.nbh     # Longer sample (slang + hisab demo)
+  └── README.md    # How to run myapp
 ```
 
 ## Development
@@ -680,14 +682,15 @@ example.nbh        # Sample program at repo root
 ### Building from Source
 ```bash
 # Clone the repository
-git clone https://github.com/konseptt/LyangLang.git
+git clone https://github.com/Konseptt/LyangLang.git
 cd LyangLang
 
 # Build the project
 cargo build --release
 
 # Run the executable
-./target/release/lyangpiler example.nbh --vm
+./target/release/lyangpiler run example.nbh --vm
+./target/release/lyangpiler run myapp/main.nbh --vm
 ```
 
 ### Running Tests
@@ -738,10 +741,10 @@ cargo test -- --nocapture
    - Try using the full path to the executable
 
 ### Getting Help
-- Open an issue on the [project repository](https://github.com/konseptt/LyangLang)
-- Check existing documentation in the [wiki](https://github.com/konseptt/LyangLang/wiki)
+- Open an issue on the [project repository](https://github.com/Konseptt/LyangLang)
+- Check existing documentation in the [wiki](https://github.com/Konseptt/LyangLang/wiki)
 - Try `example.nbh` in the repository root
-- Join the community discussions in the [forums](https://github.com/konseptt/LyangLang/discussions)
+- Join the community discussions in the [forums](https://github.com/Konseptt/LyangLang/discussions)
 
 ## License
 

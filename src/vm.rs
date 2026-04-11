@@ -323,7 +323,9 @@ impl VM {
                             Value::Boolean(a_val == b_val)
                         },
                         (Value::String(a_str), Value::String(b_str)) => {
-                            Value::Boolean(a_str == b_str)
+                            Value::Boolean(
+                                a_str.to_lowercase() == b_str.to_lowercase(),
+                            )
                         },
                         (Value::Boolean(a_val), Value::Boolean(b_val)) => {
                             Value::Boolean(a_val == b_val)
@@ -352,7 +354,9 @@ impl VM {
                             Value::Boolean(a_val != b_val)
                         },
                         (Value::String(a_str), Value::String(b_str)) => {
-                            Value::Boolean(a_str != b_str)
+                            Value::Boolean(
+                                a_str.to_lowercase() != b_str.to_lowercase(),
+                            )
                         },
                         (Value::Boolean(a_val), Value::Boolean(b_val)) => {
                             Value::Boolean(a_val != b_val)
