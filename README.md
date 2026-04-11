@@ -43,6 +43,8 @@ powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.c
 
 After the terminal installer finishes, Mac/Linux can run **`source ~/.lyangpiler/enable.sh`** once in that same window so `lyangpiler` works immediately without opening a new terminal.
 
+**Note:** The one-line installer only works when the [latest GitHub Release](https://github.com/konseptt/LyangLang/releases/latest) includes prebuilt `.zip` / `.tar.gz` files. If the release has no assets yet, use **`cargo install --git https://github.com/konseptt/LyangLang.git --locked`** (needs [Rust](https://rustup.rs/)).
+
 ## Table of Contents
 
 - [Features](#features)

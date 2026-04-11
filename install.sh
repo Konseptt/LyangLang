@@ -59,13 +59,21 @@ download_to() {
   local dest="$1" url="$2"
   rm -f "$dest"
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "$url" -o "$dest"
+    curl -fsSL "$url" -o "$dest" || return 1
   elif command -v wget >/dev/null 2>&1; then
-    wget -qO "$dest" "$url"
+    # wget must fail on 404; still reject tiny bodies (error pages) if a mirror misbehaves
+    wget -qO "$dest" "$url" || return 1
   else
     echo -e "${RED}Need curl or wget to download the binary.${NC}" >&2
     exit 1
   fi
+  local sz
+  sz=$(wc -c <"$dest" | tr -d ' ')
+  if (( sz < 2048 )); then
+    rm -f "$dest"
+    return 1
+  fi
+  return 0
 }
 
 # Reject HTML error pages and truncated downloads (GitHub 404 is tiny and not gzip).
