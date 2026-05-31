@@ -1,0 +1,144 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: lyangpiler
+            asset_name: lyangpiler-linux-x86_64
+          - os: windows-latest
+            artifact_name: lyangpiler.exe
+            asset_name: lyangpiler-windows-x86_64
+          - os: macos-latest
+            artifact_name: lyangpiler
+            # GitHub-hosted macOS runners are Apple Silicon; binary matches aarch64.
+            asset_name: lyangpiler-macos-aarch64
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    
+    - name: Build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release
+    
+    - name: Run tests
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --release
+    
+    - name: Package for Unix-like
+      if: matrix.os != 'windows-latest'
+      run: |
+        mkdir -p release/lyangpiler
+        cp target/release/${{ matrix.artifact_name }} release/lyangpiler/
+        cp install.sh install-from-folder.sh START_HERE.txt release/lyangpiler/
+        cp README.md release/lyangpiler/
+        cp example.nbh release/lyangpiler/ || true
+        chmod +x release/lyangpiler/lyangpiler
+        chmod +x release/lyangpiler/install.sh
+        chmod +x release/lyangpiler/install-from-folder.sh
+        cd release
+        tar -czf ${{ matrix.asset_name }}.tar.gz lyangpiler/
+    
+    - name: Package for Windows
+      if: matrix.os == 'windows-latest'
+      shell: bash
+      run: |
+        mkdir -p release/lyangpiler
+        cp target/release/${{ matrix.artifact_name }} release/lyangpiler/
+        cp install.cmd install.ps1 install-from-folder.sh START_HERE.txt release/lyangpiler/
+        cp README.md release/lyangpiler/
+        cp example.nbh release/lyangpiler/ || true
+        chmod +x release/lyangpiler/install-from-folder.sh || true
+        cd release
+        7z a -tzip ${{ matrix.asset_name }}.zip lyangpiler/
+    
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.asset_name }}
+        path: release/${{ matrix.asset_name }}.*
+
+  create_draft_release:
+    name: Create Draft Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release-assets
+        merge-multiple: true
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref_name }}
+        draft: true
+        prerelease: false
+
+    - name: Upload Linux Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release-assets/lyangpiler-linux-x86_64.tar.gz
+        asset_name: lyangpiler-linux-x86_64.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Upload Windows Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release-assets/lyangpiler-windows-x86_64.zip
+        asset_name: lyangpiler-windows-x86_64.zip
+        asset_content_type: application/zip
+
+    - name: Upload macOS Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release-assets/lyangpiler-macos-aarch64.tar.gz
+        asset_name: lyangpiler-macos-aarch64.tar.gz
+        asset_content_type: application/gzip

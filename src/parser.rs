@@ -1,6 +1,14 @@
-use crate::ast::{Statement, Condition, Value};
+use crate::ast::{Statement, Condition, Value, StrSegment};
 use crate::error::NepalError;
 use crate::token::Token;
+
+#[derive(Clone, Copy)]
+enum MugOp {
+    Add,
+    Sub,
+    Mul,
+    Div,
+}
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -40,15 +48,25 @@ impl Parser {
                 match &self.tokens[self.position] {
                     Token::Jod => {
                         self.position += 1;
-                        self.parse_standalone_arithmetic(true)
-                    },
+                        self.parse_standalone_arithmetic(MugOp::Add)
+                    }
                     Token::Ghata => {
                         self.position += 1;
-                        self.parse_standalone_arithmetic(false)
-                    },
-                    _ => Err(NepalError::ParseError("Expected 'jod' or 'ghata' after 'mug'")),
+                        self.parse_standalone_arithmetic(MugOp::Sub)
+                    }
+                    Token::Guna => {
+                        self.position += 1;
+                        self.parse_standalone_arithmetic(MugOp::Mul)
+                    }
+                    Token::Bhag => {
+                        self.position += 1;
+                        self.parse_standalone_arithmetic(MugOp::Div)
+                    }
+                    _ => Err(NepalError::ParseError(
+                        "Expected 'jod', 'ghata', 'guna', or 'bhag' after 'mug'",
+                    )),
                 }
-            },
+            }
             Token::Yedi => self.parse_if_statement(),
             Token::Aile => {
                 self.position += 1;
@@ -145,16 +163,16 @@ impl Parser {
                 self.position += 1;
                 if matches!(self.tokens.get(self.position), Some(Token::Plus)) {
                     self.position += 1;
-                    let mut parts = vec![value.clone()];
+                    let mut parts = vec![StrSegment::Literal(value.clone())];
                     
                     while self.position < self.tokens.len() {
                         match &self.tokens[self.position] {
                             Token::String(s) => {
-                                parts.push(s.clone());
+                                parts.push(StrSegment::Literal(s.clone()));
                                 self.position += 1;
                             }
                             Token::Identifier(id) => {
-                                parts.push(id.clone());
+                                parts.push(StrSegment::Identifier(id.clone()));
                                 self.position += 1;
                             }
                             Token::Plus => {
@@ -173,16 +191,16 @@ impl Parser {
                 self.position += 1;
                 if matches!(self.tokens.get(self.position), Some(Token::Plus)) {
                     self.position += 1;
-                    let mut parts = vec![value.clone()];
+                    let mut parts = vec![StrSegment::Identifier(value.clone())];
                     
                     while self.position < self.tokens.len() {
                         match &self.tokens[self.position] {
                             Token::String(s) => {
-                                parts.push(s.clone());
+                                parts.push(StrSegment::Literal(s.clone()));
                                 self.position += 1;
                             }
                             Token::Identifier(id) => {
-                                parts.push(id.clone());
+                                parts.push(StrSegment::Identifier(id.clone()));
                                 self.position += 1;
                             }
                             Token::Plus => {
@@ -197,7 +215,9 @@ impl Parser {
                     Ok(Statement::Declaration(name, Value::String(value.clone())))
                 }
             }
-            Token::Jod | Token::Ghata => self.parse_arithmetic_operation(name),
+            Token::Jod | Token::Ghata | Token::Guna | Token::Bhag => {
+                self.parse_arithmetic_operation(name)
+            }
             _ => Err(NepalError::ParseError("Expected value")),
         }
     }
@@ -225,11 +245,13 @@ impl Parser {
         match op {
             Token::Jod => Ok(Statement::Addition(target, sources)),
             Token::Ghata => Ok(Statement::Subtraction(target, sources)),
+            Token::Guna => Ok(Statement::Multiplication(target, sources)),
+            Token::Bhag => Ok(Statement::Division(target, sources)),
             _ => unreachable!(),
         }
     }
 
-    fn parse_standalone_arithmetic(&mut self, is_addition: bool) -> Result<Statement, NepalError> {
+    fn parse_standalone_arithmetic(&mut self, op: MugOp) -> Result<Statement, NepalError> {
         let mut sources = Vec::new();
         
         while self.position < self.tokens.len() {
@@ -261,10 +283,11 @@ impl Parser {
             return Err(NepalError::ParseError("Expected target identifier after 'lai'"));
         };
 
-        if is_addition {
-            Ok(Statement::Addition(target, sources))
-        } else {
-            Ok(Statement::Subtraction(target, sources))
+        match op {
+            MugOp::Add => Ok(Statement::Addition(target, sources)),
+            MugOp::Sub => Ok(Statement::Subtraction(target, sources)),
+            MugOp::Mul => Ok(Statement::Multiplication(target, sources)),
+            MugOp::Div => Ok(Statement::Division(target, sources)),
         }
     }
 
@@ -308,5 +331,56 @@ impl Parser {
             return Err(NepalError::ParseError("Expected identifier after bhan"));
         };
         Ok(Statement::Input(name))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::StrSegment;
+    use crate::token::Token;
+
+    #[test]
+    fn string_concat_preserves_literal_segments() {
+        let tokens = vec![
+            Token::OiMug,
+            Token::Identifier("fullName".into()),
+            Token::Equals,
+            Token::Identifier("firstName".into()),
+            Token::Plus,
+            Token::String(" ".into()),
+            Token::Plus,
+            Token::Identifier("lastName".into()),
+        ];
+        let mut p = Parser::new(tokens);
+        let stmts = p.parse().unwrap();
+        match &stmts[0] {
+            Statement::StringConcat(name, parts) => {
+                assert_eq!(name, "fullName");
+                assert_eq!(parts.len(), 3);
+                assert!(matches!(&parts[0], StrSegment::Identifier(s) if s == "firstName"));
+                assert!(matches!(&parts[1], StrSegment::Literal(s) if s == " "));
+                assert!(matches!(&parts[2], StrSegment::Identifier(s) if s == "lastName"));
+            }
+            _ => panic!("expected StringConcat"),
+        }
+    }
+
+    #[test]
+    fn parses_simple_if() {
+        let tokens = vec![
+            Token::Yedi,
+            Token::Identifier("age".into()),
+            Token::Babaal,
+            Token::String("18".into()),
+            Token::Bhane,
+            Token::BolMug,
+            Token::String("ok".into()),
+            Token::Sakiyo,
+        ];
+        let mut p = Parser::new(tokens);
+        let stmts = p.parse().unwrap();
+        assert_eq!(stmts.len(), 1);
+        assert!(matches!(stmts[0], Statement::If(_, _, None)));
     }
 }

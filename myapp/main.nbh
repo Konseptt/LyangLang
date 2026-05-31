@@ -1,0 +1,66 @@
+// myapp/main.nbh — LyangLang demo (Roman Nepali + internet-style slang; PG-friendly)
+// Slang vibe: thik cha, dai/sathi, jhap/phatto, kasto, haw, jugaad, chill, mero 2 paisa (youth chat Roman)
+
+bol mug "=== LyangLang myapp — Lyangpiler test ==="
+bol mug "K cha sathi? Yo hisab ko jugaad LyangLang le garchha. Chill!"
+bol mug ""
+
+// --- Pasal ko hisab (guna / jod / bhag / ghata) ---
+oi mug mulaka_mulya = 45
+oi mug kerau_mulya = 30
+oi mug mulaka_sankhya = 4
+oi mug kerau_sankhya = 3
+
+mug guna mulaka_mulya, mulaka_sankhya lai mulaka_jamma
+mug guna kerau_mulya, kerau_sankhya lai kerau_jamma
+mug jod mulaka_jamma, kerau_jamma lai kul_kharid
+mug jod mulaka_sankhya, kerau_sankhya lai kul_thaila
+
+bol mug "Pasar snapshot (rupiya):"
+bol mug "  Mulaka side: " + mulaka_jamma
+bol mug "  Kerau side: " + kerau_jamma
+bol mug "  Kul kharid: " + kul_kharid
+bol mug ""
+
+mug bhag kul_kharid, kul_thaila lai prati_thaila_mo
+bol mug "Prati thaila average: " + prati_thaila_mo
+bol mug ""
+
+oi mug chhut_jamma = 500
+mug ghata chhut_jamma, kul_kharid lai baki_raha
+bol mug "Chhut 500 pachi baki: " + baki_raha
+bol mug "Mero 2 paisa: hisab thik cha, tension linu pardaina."
+bol mug ""
+
+// --- String (thau + vibe) ---
+oi mug thau = "Pokhara"
+oi mug line = "Aaja " + thau + " ma weather kasto ramro — photo jhap worthy!"
+bol mug line
+bol mug ""
+
+// --- Input + rang (string yedi; case-insensitive, e.g. RATO == rato) ---
+bol mug "Timro naam lekhnus, dai/keti/sabai lai welcome:"
+oi mug bhan naam
+bol mug "Namaste, " + naam + "! Thik cha."
+
+bol mug "Man pasand rang? (rato / nilo / hariyo / phatto / thik cha)"
+oi mug bhan rang
+
+yedi rang babaal "rato" bhane
+    bol mug "Rato rang ta jhap nai ho — energy high!"
+sakiyo
+aile feri rang babaal "nilo" bhane
+    bol mug "Nilo = chill + shanta vibes. Haw, ramro choice."
+sakiyo
+aile feri rang babaal "hariyo" bhane
+    bol mug "Hariyo = nature mode. Kasto fresh!"
+sakiyo
+aile feri rang babaal "phatto" bhane
+    bol mug "Phatto style! Uff, kasto fire rang."
+sakiyo
+aile feri rang babaal "thik cha" bhane
+    bol mug "Thik cha — neutral ni best option hunchha."
+sakiyo
+
+bol mug ""
+bol mug "=== Test sakiyo. Arko choti feri chalaunu. Dhanyabad, sathi! ==="

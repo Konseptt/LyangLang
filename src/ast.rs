@@ -1,9 +1,18 @@
+/// One segment in a string concatenation on the right-hand side of `=`.
+#[derive(Debug, Clone)]
+pub enum StrSegment {
+    Literal(String),
+    Identifier(String),
+}
+
 #[derive(Debug)]
 pub enum Statement {
     Declaration(String, Value),
     Addition(String, Vec<String>),
     Subtraction(String, Vec<String>),
-    StringConcat(String, Vec<String>), // New: for string concatenation
+    Multiplication(String, Vec<String>),
+    Division(String, Vec<String>),
+    StringConcat(String, Vec<StrSegment>),
     Print(String),
     PrintString(Vec<String>),
     Input(String),

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::ast::{Statement, Condition, Value};
+use crate::ast::{Statement, Condition, Value, StrSegment};
 
 pub struct Interpreter {
     variables: HashMap<String, Value>,
@@ -42,6 +42,40 @@ impl Interpreter {
                     self.variables.insert(target, Value::Number(diff));
                 }
             }
+            Statement::Multiplication(target, sources) => {
+                if sources.is_empty() {
+                    return;
+                }
+                let prod: i32 = sources
+                    .iter()
+                    .filter_map(|name| {
+                        if let Some(Value::Number(n)) = self.variables.get(name) {
+                            Some(*n)
+                        } else {
+                            None
+                        }
+                    })
+                    .product();
+                self.variables.insert(target, Value::Number(prod));
+            }
+            Statement::Division(target, sources) => {
+                if let Some(&Value::Number(first)) = sources.first().and_then(|name| self.variables.get(name)) {
+                    let mut acc = first;
+                    let mut ok = true;
+                    for name in sources.iter().skip(1) {
+                        if let Some(Value::Number(n)) = self.variables.get(name) {
+                            if *n == 0 {
+                                ok = false;
+                                break;
+                            }
+                            acc /= n;
+                        }
+                    }
+                    if ok {
+                        self.variables.insert(target, Value::Number(acc));
+                    }
+                }
+            }
             Statement::Print(name) => {
                 if let Some(value) = self.variables.get(&name) {
                     match value {
@@ -79,14 +113,15 @@ impl Interpreter {
                 let execute = match condition {
                     Condition::Equals(var1, string_literal) => {
                         if let Some(Value::String(input)) = self.variables.get(&var1) {
-                            input == &string_literal
+                            // Case-insensitive so "Rato" matches yedi ... "rato" (common chat typing).
+                            input.to_lowercase() == string_literal.to_lowercase()
                         } else {
                             false
                         }
                     }
                     Condition::NotEquals(var1, string_literal) => {
                         if let Some(Value::String(input)) = self.variables.get(&var1) {
-                            input != &string_literal
+                            input.to_lowercase() != string_literal.to_lowercase()
                         } else {
                             false
                         }
@@ -102,15 +137,19 @@ impl Interpreter {
                 }
             }
             Statement::StringConcat(target, parts) => {
-                let result = parts.iter()
-                    .map(|part| {
-                        if let Some(value) = self.variables.get(part) {
-                            match value {
-                                Value::String(s) => s.clone(),
-                                Value::Number(n) => n.to_string(),
+                let result = parts
+                    .iter()
+                    .map(|seg| match seg {
+                        StrSegment::Literal(s) => s.clone(),
+                        StrSegment::Identifier(name) => {
+                            if let Some(value) = self.variables.get(name) {
+                                match value {
+                                    Value::String(s) => s.clone(),
+                                    Value::Number(n) => n.to_string(),
+                                }
+                            } else {
+                                name.clone()
                             }
-                        } else {
-                            part.clone()
                         }
                     })
                     .collect::<Vec<String>>()
