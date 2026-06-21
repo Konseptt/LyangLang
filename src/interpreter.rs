@@ -196,20 +196,33 @@ impl Interpreter {
             Statement::If(condition, statements, else_branch) => {
                 let execute = match condition {
                     Condition::Equals(var1, string_literal) => {
-                        if let Some(Value::String(input)) = self.variables.get(&var1) {
-                            // Case-insensitive so "Rato" matches yedi ... "rato" (common chat typing).
-                            input.to_lowercase() == string_literal.to_lowercase()
-                        } else {
-                            false
+                        // Mirror the VM (vm.rs Equal/NotEqual): a String variable is
+                        // compared case-insensitively; a Number variable is compared
+                        // numerically against the literal parsed as i32.
+                        match self.variables.get(&var1) {
+                            Some(Value::String(input)) => {
+                                input.to_lowercase() == string_literal.to_lowercase()
+                            }
+                            Some(Value::Number(input)) => string_literal
+                                .trim()
+                                .parse::<i32>()
+                                .is_ok_and(|lit| *input == lit),
+                            _ => false,
                         }
                     }
                     Condition::NotEquals(var1, string_literal) => {
-                        // True negation of Equals: a missing or numeric variable
-                        // is never equal to a string literal, so NotEquals is true.
-                        if let Some(Value::String(input)) = self.variables.get(&var1) {
-                            input.to_lowercase() != string_literal.to_lowercase()
-                        } else {
-                            true
+                        // Negation of Equals, including the Number arm above.
+                        match self.variables.get(&var1) {
+                            Some(Value::String(input)) => {
+                                input.to_lowercase() != string_literal.to_lowercase()
+                            }
+                            // A non-numeric literal can't equal a Number var, so
+                            // NotEquals is true on parse failure.
+                            Some(Value::Number(input)) => string_literal
+                                .trim()
+                                .parse::<i32>()
+                                .map_or(true, |lit| *input != lit),
+                            _ => true,
                         }
                     }
                 };
@@ -249,5 +262,53 @@ impl Interpreter {
             }
         }
         true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn equals_number_var_matches_numeric_string_literal() {
+        // Regression: a Number variable compared against a numeric-looking
+        // string literal must match (mirrors the VM). Before the fix this
+        // branch was always false in the interpreter.
+        let mut interp = Interpreter::new();
+        interp.variables.insert("x".to_string(), Value::Number(5));
+
+        let matched = interp.execute(Statement::If(
+            Condition::Equals("x".to_string(), "5".to_string()),
+            vec![Statement::PrintString(vec!["hit".to_string()])],
+            None,
+        ));
+        assert!(matched);
+
+        let not_matched = interp.execute(Statement::If(
+            Condition::Equals("x".to_string(), "6".to_string()),
+            vec![Statement::PrintString(vec!["miss".to_string()])],
+            None,
+        ));
+        assert!(not_matched);
+    }
+
+    #[test]
+    fn not_equals_number_var_mirrors_equals() {
+        let mut interp = Interpreter::new();
+        interp.variables.insert("x".to_string(), Value::Number(5));
+
+        let neq_mismatch = interp.execute(Statement::If(
+            Condition::NotEquals("x".to_string(), "6".to_string()),
+            vec![Statement::PrintString(vec!["neq-hit".to_string()])],
+            None,
+        ));
+        assert!(neq_mismatch);
+
+        let neq_match = interp.execute(Statement::If(
+            Condition::NotEquals("x".to_string(), "5".to_string()),
+            vec![Statement::PrintString(vec!["should-not-run".to_string()])],
+            None,
+        ));
+        assert!(neq_match);
     }
 }
