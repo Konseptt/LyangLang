@@ -61,7 +61,9 @@ fn main() -> Result<(), NepalError> {
 
     match cli.command {
         Some(Commands::Run { file, vm }) => {
-            run_program(&file, vm)
+            // Honor either the top-level `--vm` or the subcommand `--vm`, so the
+            // top-level flag is no longer silently dropped for `run`.
+            run_program(&file, vm || cli.vm)
         },
         Some(Commands::New { name }) => {
             create_project(&name)
@@ -74,11 +76,13 @@ fn main() -> Result<(), NepalError> {
             if let Some(file) = cli.input {
                 run_program(&file, cli.vm)
             } else {
-                if let Ok(example) = std::fs::canonicalize("example.nbh") {
-                    run_program(&example, cli.vm)
-                } else {
-                    Err(NepalError::RuntimeError("No input file specified"))
-                }
+                // No file given: print usage instead of silently running a file
+                // from the current working directory.
+                eprintln!("Usage: lyangpiler [OPTIONS] <FILE>");
+                eprintln!("       lyangpiler run <FILE> [--vm]");
+                eprintln!("       lyangpiler check <FILE>");
+                eprintln!("       lyangpiler new <NAME>");
+                Err(NepalError::RuntimeError("No input file specified"))
             }
         },
     }
@@ -104,7 +108,12 @@ fn run_program(file: &PathBuf, use_vm: bool) -> Result<(), NepalError> {
             } else {
                 let mut interpreter = interpreter::Interpreter::new();
                 for statement in statements {
-                    interpreter.execute(statement);
+                    // A runtime error is reported to stderr by `execute`, which
+                    // returns false; stop the program with a non-zero exit code
+                    // instead of running the remaining statements.
+                    if !interpreter.execute(statement) {
+                        std::process::exit(1);
+                    }
                 }
             }
             Ok(())

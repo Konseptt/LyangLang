@@ -44,11 +44,20 @@ impl NepalError {
         column: usize
     ) -> Self {
         let error_message = error.to_string();
-        let error_parts: Vec<&str> = error_message.split(':').collect();
+        let error_parts: Vec<&str> = error_message.splitn(2, ':').collect();
         let error_type = error_parts.get(0).unwrap_or(&"Error").to_string();
         let message = error_parts.get(1).unwrap_or(&"Unknown error").trim().to_string();
-        
-        let code_line = code.lines().nth(line - 1).unwrap_or("").to_string();
+
+        // Lines are 1-based; guard against line == 0 to avoid usize underflow.
+        let code_line = if line == 0 {
+            String::new()
+        } else {
+            code.lines().nth(line - 1).unwrap_or("").to_string()
+        };
+        // Clamp column to the displayed line's character length so the caret
+        // never points past the end, and so byte-derived columns don't misalign
+        // on multi-byte UTF-8 (Devanagari/Nepali) lines.
+        let column = column.min(code_line.chars().count());
         let pointer = format!("{}^---- Error location", " ".repeat(column));
         
         Self::FormattedError {

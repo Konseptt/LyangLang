@@ -31,8 +31,14 @@ impl Parser {
         Ok(statements)
     }
 
+    fn current(&self) -> Result<&Token, NepalError> {
+        self.tokens
+            .get(self.position)
+            .ok_or(NepalError::ParseError("unexpected end of input"))
+    }
+
     fn parse_statement(&mut self) -> Result<Statement, NepalError> {
-        match &self.tokens[self.position] {
+        match self.current()? {
             Token::OiMug => {
                 self.position += 1;
                 if matches!(self.tokens.get(self.position), Some(Token::Bhan)) {
@@ -45,7 +51,7 @@ impl Parser {
             Token::BolMug => self.parse_print(),
             Token::Mug => {
                 self.position += 1;  // Skip 'mug'
-                match &self.tokens[self.position] {
+                match self.current()? {
                     Token::Jod => {
                         self.position += 1;
                         self.parse_standalone_arithmetic(MugOp::Add)
@@ -86,14 +92,15 @@ impl Parser {
             self.position += 1;
         }
         
-        let var1 = if let Token::Identifier(name) = &self.tokens[self.position] {
+        let var1 = if let Token::Identifier(name) = self.current()? {
+            let name = name.clone();
             self.position += 1;
-            name.clone()
+            name
         } else {
             return Err(NepalError::ParseError("Expected variable name after yedi"));
         };
 
-        let condition = match &self.tokens[self.position] {
+        let condition = match self.current()? {
             Token::Babaal => {
                 self.position += 1;
                 true
@@ -105,9 +112,10 @@ impl Parser {
             _ => return Err(NepalError::ParseError("Expected babaal or laamo")),
         };
 
-        let var2 = if let Token::String(s) = &self.tokens[self.position] {
+        let var2 = if let Token::String(s) = self.current()? {
+            let s = s.clone();
             self.position += 1;
-            s.clone()
+            s
         } else {
             return Err(NepalError::ParseError("Expected string literal"));
         };
@@ -118,13 +126,23 @@ impl Parser {
         self.position += 1;
 
         let mut statements = Vec::new();
+        let mut else_branch: Option<Box<Statement>> = None;
         while self.position < self.tokens.len() {
             match &self.tokens[self.position] {
                 Token::Sakiyo => {
                     self.position += 1;
                     break;
                 }
-                Token::Aile => break,
+                Token::Aile => {
+                    // Else / else-if branch. parse_statement handles the
+                    // `Aile` token: it consumes `aile feri` and parses the
+                    // following if-statement, which recursively absorbs any
+                    // further `aile feri ... sakiyo` chain (and its own
+                    // trailing `sakiyo`). We attach the result as the else
+                    // branch instead of leaving it orphaned at top level.
+                    else_branch = Some(Box::new(self.parse_statement()?));
+                    break;
+                }
                 _ => statements.push(self.parse_statement()?),
             }
         }
@@ -136,28 +154,29 @@ impl Parser {
                 Condition::NotEquals(var1, var2)
             },
             statements,
-            None,
+            else_branch,
         ))
     }
 
     fn parse_declaration(&mut self) -> Result<Statement, NepalError> {
-        let name = if let Token::Identifier(name) = &self.tokens[self.position] {
+        let name = if let Token::Identifier(name) = self.current()? {
+            let name = name.clone();
             self.position += 1;
-            name.clone()
+            name
         } else {
             return Err(NepalError::ParseError("Expected identifier"));
         };
 
-        if let Token::Equals = &self.tokens[self.position] {
+        if let Token::Equals = self.current()? {
             self.position += 1;
         } else {
             return Err(NepalError::ParseError("Expected '='"));
         }
 
-        match &self.tokens[self.position] {
+        match self.current()?.clone() {
             Token::Number(value) => {
                 self.position += 1;
-                Ok(Statement::Declaration(name, Value::Number(*value)))
+                Ok(Statement::Declaration(name, Value::Number(value)))
             }
             Token::String(value) => {
                 self.position += 1;
@@ -242,6 +261,12 @@ impl Parser {
             }
         }
 
+        if sources.is_empty() {
+            return Err(NepalError::ParseError(
+                "arithmetic operation requires at least one operand",
+            ));
+        }
+
         match op {
             Token::Jod => Ok(Statement::Addition(target, sources)),
             Token::Ghata => Ok(Statement::Subtraction(target, sources)),
@@ -276,12 +301,19 @@ impl Parser {
             }
         }
 
-        let target = if let Token::Identifier(name) = &self.tokens[self.position] {
+        let target = if let Token::Identifier(name) = self.current()? {
+            let name = name.clone();
             self.position += 1;
-            name.clone()
+            name
         } else {
             return Err(NepalError::ParseError("Expected target identifier after 'lai'"));
         };
+
+        if sources.is_empty() {
+            return Err(NepalError::ParseError(
+                "arithmetic operation requires at least one operand",
+            ));
+        }
 
         match op {
             MugOp::Add => Ok(Statement::Addition(target, sources)),
@@ -293,7 +325,7 @@ impl Parser {
 
     fn parse_print(&mut self) -> Result<Statement, NepalError> {
         self.position += 1; // Skip 'bol mug'
-        if let Token::String(_) = &self.tokens[self.position] {
+        if let Token::String(_) = self.current()? {
             let mut parts = Vec::new();
             while self.position < self.tokens.len() {
                 match &self.tokens[self.position] {
@@ -313,9 +345,10 @@ impl Parser {
             }
             Ok(Statement::PrintString(parts))
         } else {
-            let name = if let Token::Identifier(name) = &self.tokens[self.position] {
+            let name = if let Token::Identifier(name) = self.current()? {
+                let name = name.clone();
                 self.position += 1;
-                name.clone()
+                name
             } else {
                 return Err(NepalError::ParseError("Expected identifier or string"));
             };
@@ -324,9 +357,10 @@ impl Parser {
     }
 
     fn parse_input(&mut self) -> Result<Statement, NepalError> {
-        let name = if let Token::Identifier(name) = &self.tokens[self.position] {
+        let name = if let Token::Identifier(name) = self.current()? {
+            let name = name.clone();
             self.position += 1;
-            name.clone()
+            name
         } else {
             return Err(NepalError::ParseError("Expected identifier after bhan"));
         };
