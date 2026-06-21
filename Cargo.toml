@@ -1,6 +1,6 @@
 [package]
 name = "lyanglyang"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["LyangLang Team"]
 edition = "2021"
 description = "Lyangpiler - A VM for the LyangLang programming language with native Nepali syntax"
