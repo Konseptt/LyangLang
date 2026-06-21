@@ -1,763 +1,268 @@
 # LyangLang
 
-A programming language featuring natural Nepali syntax, designed to help Nepali speakers learn programming concepts in a familiar language. LyangLang bridges the gap between natural Nepali language and programming logic, creating an accessible entry point for native speakers.
+A toy programming language with Romanized Nepali keywords, written in Rust. Source files use `.nbh`. Run with `lyangpiler`.
+
+Two execution backends: tree-walking interpreter (default) and a bytecode VM (`--vm`). Both produce identical results.
 
 ![LyangLang](https://img.shields.io/badge/LyangLang-v0.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Build](https://img.shields.io/github/actions/workflow/status/Konseptt/LyangLang/build.yml?branch=main&label=build)
 
-## Get Lyangpiler in one step
+## Install
 
-**From the terminal (recommended)** — copy one block, paste, press Enter.
-
-**Mac or Linux**
+**Quickest (no Rust needed):**
 
 ```bash
+# macOS / Linux
 curl -fsSL https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.sh | bash
-```
 
-**Windows (PowerShell)**
-
-```powershell
+# Windows (PowerShell)
 irm https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.ps1 | iex
 ```
 
-**Windows if scripts are blocked**
+**From crates.io (needs Rust):**
 
-```powershell
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Konseptt/LyangLang/main/install.ps1 | iex"
+```bash
+cargo install lyanglyang --locked
 ```
 
-**One-click download** — save the file for your computer, extract it, then:
+**Build from source:**
 
-- **Windows:** open the `lyangpiler` folder and **double-click `install.cmd`** (or open `START_HERE.txt`).
-- **Mac / Linux:** open Terminal in the extracted `lyangpiler` folder and run `bash install-from-folder.sh`, then `source ~/.lyangpiler/enable.sh`.
+```bash
+git clone https://github.com/Konseptt/LyangLang.git
+cd LyangLang
+cargo build --release
+./target/release/lyangpiler run example.nbh
+```
 
-| System | Direct download (latest release) |
-|--------|----------------------------------|
+**Direct download:** grab the binary for your OS from [Releases](https://github.com/Konseptt/LyangLang/releases/latest).
+
+| System | Download |
+|--------|----------|
 | Windows 64-bit | [lyangpiler-windows-x86_64.zip](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-windows-x86_64.zip) |
 | Linux 64-bit Intel/AMD | [lyangpiler-linux-x86_64.tar.gz](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-linux-x86_64.tar.gz) |
 | Linux 64-bit ARM | [lyangpiler-linux-aarch64.tar.gz](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-linux-aarch64.tar.gz) |
 | macOS Apple Silicon | [lyangpiler-macos-aarch64.tar.gz](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-macos-aarch64.tar.gz) |
 | macOS Intel | [lyangpiler-macos-x86_64.tar.gz](https://github.com/Konseptt/LyangLang/releases/latest/download/lyangpiler-macos-x86_64.tar.gz) |
 
-After the terminal installer finishes, Mac/Linux can run **`source ~/.lyangpiler/enable.sh`** once in that same window so `lyangpiler` works immediately without opening a new terminal.
-
-**With Rust installed:** run **`cargo install lyanglyang --locked`**. This installs the `lyangpiler` command from crates.io.
-
-## Table of Contents
-
-- [Features](#features)
-- [Get Lyangpiler in one step](#get-lyangpiler-in-one-step)
-- [Installation](#installation)
-  - [Prerequisites](#prerequisites)
-  - [Windows](#windows)
-  - [Linux/macOS](#linuxmacos)
-  - [Building from Source](#building-from-source)
-  - [Quick Installation](#quick-installation)
-- [Running Programs](#running-programs)
-  - [Using the Command Line](#using-the-command-line)
-  - [Command Line Arguments](#command-line-arguments)
-  - [Examples](#examples)
-  - [Command Line Interface](#command-line-interface)
-  - [Command Line Options](#command-line-options)
-- [Language Guide](#language-guide)
-  - [Basic Syntax](#1-basic-syntax)
-  - [Control Flow](#2-control-flow)
-  - [Operations](#3-operations)
-  - [Data Types](#4-data-types)
-  - [Functions and Procedures](#5-functions-and-procedures)
-- [Loop Examples](#loop-examples)
-  - [Counted Loop](#counted-loop-for-loop)
-  - [While Loop](#while-loop)
-- [Sample Programs](#sample-programs)
-  - [Hello World](#hello-world)
-  - [Simple Calculator](#simple-calculator)
-  - [User Greeting](#user-greeting)
-  - [Age Verification](#age-verification)
-  - [Color Preference](#color-preference)
-- [Error Handling](#error-handling)
-  - [Error Types](#error-types)
-  - [Error Format](#error-format)
-  - [Common Error Messages](#common-error-messages)
-- [Lyangpiler VM](#lyangpiler-vm)
-  - [Architecture](#architecture)
-  - [Bytecode Instructions](#bytecode-instructions)
-  - [Memory Management](#memory-management)
-  - [Execution Model](#execution-model)
-- [Project Structure](#project-structure)
-- [Development](#development)
-  - [Building from Source](#building-from-source-1)
-  - [Running Tests](#running-tests)
-  - [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
-  - [Common Issues](#common-issues)
-  - [Getting Help](#getting-help)
-- [License](#license)
-
-## Features
-
-- **Natural Nepali Syntax**: Write code using familiar Nepali words and phrases for a more intuitive programming experience. Commands like `bol mug` (print) and `oi mug bhan` (input) provide a close connection to everyday language.
-
-- **Bytecode Virtual Machine**: The Lyangpiler VM offers efficient execution with precompiled bytecode for optimal performance across different platforms. The VM is stack-based with a clean and simple architecture.
-
-- **Programming constructs (current Lyangpiler)**:
-  - Variables and assignments (`oi mug`, `mug jod` / `ghata` / `guna` / `bhag` … `lai`)
-  - Arithmetic: `jod`, `ghata`, `guna`, `bhag`
-  - Strings and `+` concatenation; `bol mug` and `oi mug bhan` for I/O
-  - Conditionals: `yedi` / `yadi`, `aile feri`, `sakiyo` with string comparisons (case-insensitive)
-  - `//` line comments
-- **Language guide** sections below also describe **planned** features (e.g. `ghumu`, `jabsamma`, `kaam`, richer `yadi`/`natra`) that are **not all implemented** in this repository yet—use `lyangpiler check` on `.nbh` files to confirm what parses today.
-
-- **Error Handling**: Comprehensive error messages in English with clear line indicators and detailed explanations for debugging.
-
-- **Cross-Platform Support**: Runs on Windows, Linux, and macOS with consistent behavior and native installation packages.
-
-- **Beginner-Friendly Design**: Specifically crafted for educational purposes, making programming accessible to Nepali speakers with little to no programming experience.
-
-- **Interpreter and Compiler**: Use either the direct interpreter or the VM compilation mode to run your programs with a simple command-line interface.
-
-## Installation
-
-### Fastest way to try (binary, no Rust)
-
-Use the **Get Lyangpiler in one step** section at the top of this page (terminal one-liners and download links).
-
-**Any OS with Docker:**
+## Run a program
 
 ```bash
-docker build -t lyangpiler .
-docker run --rm -v "$PWD:/work" -w /work lyangpiler run ./example.nbh --vm
+lyangpiler run file.nbh           # tree-walking interpreter (default)
+lyangpiler run file.nbh --vm      # bytecode VM backend
 ```
 
-**Any OS with Rust already installed:**
+Legacy shorthand: `lyangpiler file.nbh --vm` works the same.
 
 ```bash
-cargo install lyanglyang --locked
+lyangpiler check file.nbh         # validate syntax, don't execute
+lyangpiler new myproject          # scaffold a new project
 ```
 
-After a binary install: on **Mac/Linux** run `source ~/.lyangpiler/enable.sh` in the same terminal to use `lyangpiler` immediately, or open a new terminal. On **Windows**, the installer updates `PATH` for the current PowerShell window so `lyangpiler` usually works at once. If the command is not found, confirm `~/.lyangpiler/bin` or `%USERPROFILE%\.lyangpiler\bin` is on your `PATH`.
+After install, Mac/Linux users may need `source ~/.lyangpiler/enable.sh` or a fresh terminal for `lyangpiler` to appear on PATH.
 
-Release archives use names like `lyangpiler-linux-x86_64.tar.gz`, `lyangpiler-macos-aarch64.tar.gz`, and `lyangpiler-windows-x86_64.zip` (see [Releases](https://github.com/Konseptt/LyangLang/releases/latest)). Older releases may use `*-amd64*` names; the install scripts try those as a fallback on Linux/mac x86_64.
+## Language reference
 
-### Prerequisites
+Keywords are Romanized Nepali. Every word in a two-word keyword (like `bol mug`, `oi mug`) must be typed as-is.
 
-- **Binary install:** none (uses `curl` or `wget` on Unix, built-in PowerShell on Windows).
-- **Build from source:** Rust toolchain and Cargo.
-
-### Windows
-
-1. **Recommended:** one-liner in PowerShell (see [Get Lyangpiler in one step](#get-lyangpiler-in-one-step)).
-2. **From a release zip:** download `lyangpiler-windows-x86_64.zip`, extract it, then run `install.cmd` from inside the `lyangpiler` folder (or add that folder to your PATH manually).
-3. **From source:** clone the repo, then `cargo build --release` and copy `target\release\lyangpiler.exe` to a directory on your PATH.
-
-### Linux/macOS
-
-1. **Recommended:** one-liner with `curl` (see [Get Lyangpiler in one step](#get-lyangpiler-in-one-step)).
-2. **From a release tarball:** download the matching `lyangpiler-*-*.tar.gz` for your OS and CPU, extract it, and run `./install.sh` from the repository if you cloned it, or put the `lyangpiler` binary on your PATH.
-3. **From source:** `cargo build --release` and copy `target/release/lyangpiler` to a directory on your PATH (for example `/usr/local/bin`).
-
-### Building from Source
-
-1. Clone the repository:
-```bash
-git clone https://github.com/Konseptt/LyangLang.git
-cd LyangLang
-```
-
-2. Build the project:
-```bash
-cargo build --release
-```
-
-The executable will be available at `target/release/lyangpiler.exe` (Windows) or `target/release/lyangpiler` (Unix-like systems).
-
-3. Make the file executable (Unix-like systems only):
-```bash
-chmod +x target/release/lyangpiler
-```
-
-### Quick Installation
-
-If you already downloaded a release archive, extract it and run `install.cmd` (Windows) from inside the `lyangpiler` folder, or use the one-line installers in [Get Lyangpiler in one step](#get-lyangpiler-in-one-step) so `lyangpiler` is on your `PATH`.
-
-## Running Programs
-
-1. Create a new file with `.nbh` extension
-2. Write your LyangLang code
-3. Run using the Lyangpiler (VM recommended):
-```bash
-lyangpiler run your_program.nbh --vm
-```
-
-Legacy shorthand (same as above when the first arg is a file):
+### Print
 
 ```bash
-lyangpiler your_program.nbh --vm
+bol mug "Namaste, world!"              // print literal string
+bol mug "Namaste " + naam + "!"         // string concatenation with +
+bol mug "Number: " + age                // variable in string (autoconverted)
 ```
 
-### Using the Command Line
-
-#### Windows
-```powershell
-# VM mode (recommended)
-lyangpiler.exe run your_program.nbh --vm
-```
-
-#### Linux/macOS
-```bash
-# From a clone, before install:
-./target/release/lyangpiler run your_program.nbh --vm
-```
-
-After install, use `lyangpiler` from your `PATH` (same `run … --vm` commands).
-
-### Command Line Arguments
-
-- **`run <file.nbh> [--vm]`** — run a program (`--vm` uses the bytecode VM; recommended)
-- **`<file.nbh> [--vm]`** — same as `run` when the first token is a path ending in `.nbh`
-
-### Examples
+### Variables
 
 ```bash
-# Windows
-lyangpiler.exe run example.nbh --vm
-
-# Linux/macOS (from repo clone before install)
-./target/release/lyangpiler run example.nbh --vm
+oi mug age = 25                         // declare number variable
+oi mug naam = "Ram"                     // declare string variable
 ```
 
-### Command Line Interface
-
-The Lyangpiler provides a modern CLI with several subcommands for different operations:
+### Input
 
 ```bash
-# Run a program
-lyangpiler run your_program.nbh
-
-# Check a program for errors
-lyangpiler check your_program.nbh
-
-# Create a new project
-lyangpiler new project_name
-
-# Running with VM (recommended for performance)
-lyangpiler run your_program.nbh --vm
+oi mug bhan naam                        // prompt "> ", read input into naam
 ```
 
-### Command Line Options
+`bhan` reads a string from the user. To use input in arithmetic you'd need to convert it, but LyangLang doesn't have a parse/convert function yet. So `bhan` is for strings, and `oi mug x = 5` is for numbers.
 
-- `run`: Execute a LyangLang program
-  - Example: `lyangpiler run program.nbh`
-  - Options: `--vm` to use the virtual machine execution mode
-- `check`: Validate syntax without executing
-  - Example: `lyangpiler check program.nbh`
-- `new`: Create a new LyangLang project with template files
-  - Example: `lyangpiler new myproject`
-- `version`: Display version information
-  - Example: `lyangpiler --version`
-- `help`: Show help message and available commands
-  - Example: `lyangpiler --help` or `lyangpiler help`
+### Arithmetic
 
-## Language Guide
+All use `checked` arithmetic, so overflow crashes instead of wrapping silently.
 
-### 1. Basic Syntax
-
-#### Variables and Assignment
-```
-# Number variable
-mug rakhnu 42 lai number
-
-# String variable
-mug rakhnu "Hello" lai text
-
-# Boolean variable
-mug rakhnu sahi lai bool_var
-
-# Variable assignment with calculation
-number = 10 jod 5    # number = 15
+```bash
+mug jod a, b lai sum                    // sum = a + b
+mug ghata a, b lai diff                 // diff = a - b
+mug guna a, b lai prod                  // prod = a * b
+mug bhag a, b lai quot                  // quot = a / b (division by zero crashes)
 ```
 
-#### Input/Output
-```
-# Output to console
-bol mug "Namaste!"
+### Conditionals
 
-# Output with variable interpolation
-bol mug "Your score is: " jod score
-
-# Input from user
-oi mug bhan user_input
-
-# Input with prompt
-bol mug "Enter your name:"
-oi mug bhan user_name
-```
-
-#### Operators
-- Arithmetic: `jod` (add), `ghata` (subtract), `guna` (multiply), `bhag` (divide)
-- Comparison: `barabar` (equals), `thulo` (greater than), `sano` (less than)
-- Logical: `ra` (and), `wa` (or), `hoina` (not)
-
-#### Functions
-```
-# Function definition
-kaam namaste_bhan(naam) {
-    bol mug "Namaste " jod naam jod "!"
-}
-
-# Function call
-namaste_bhan("Sathi")
-```
-
-### 2. Control Flow
-
-#### Conditional Statements
-```
-# Simple if-else
-yadi age >= 18 bhane
-    bol mug "You can vote!"
-natra
-    bol mug "Too young to vote"
+```bash
+// if-then-end
+yedi age babaal "18" bhane
+    bol mug "Adult"
 sakiyo
 
-# Multiple conditions
-yadi score >= 90 bhane
-    bol mug "Grade A"
-aile feri score >= 80 bhane
-    bol mug "Grade B"
-aile feri score >= 70 bhane
-    bol mug "Grade C"
-natra
-    bol mug "Need improvement"
+// if-else if-end
+yedi rang babaal "rato" bhane
+    bol mug "Red"
+aile feri rang babaal "nilo" bhane
+    bol mug "Blue"
 sakiyo
 ```
 
-#### Loops
-```
-# Basic for loop (repeat 5 times)
-ghumu 5 choti
-    bol mug "Iteration"
-sakiyo
+- `yedi` / `yadi`: if (both work, same token)
+- `babaal`: equals comparison
+- `laamo`: not-equals comparison
+- `bhane`: then
+- `aile feri`: else-if
+- `sakiyo`: end of block
 
-# While loop
-jabsamma number <= 10 cha
-    bol mug number
-    number = number jod 1
-sakiyo
+String comparisons are case-insensitive in both backends (`"RATO" babaal "rato"` is true).
 
-# Loop with break
-jabsamma sahi cha
-    oi mug bhan input
-    yadi input barabar "exit" bhane
-        rokana
-    sakiyo
-    bol mug "You entered: " jod input
-sakiyo
+### Comments
 
-# Loop with continue
-ghumu 10 choti
-    yadi count % 2 barabar 0 bhane
-        arko hernu  # Skip even numbers
-    sakiyo
-    bol mug count  # Print odd numbers only
-sakiyo
+```bash
+// This is a comment, everything after // is ignored
 ```
 
-### Control Flow Examples
+### Keyword quick reference
 
-#### Loops
-```
-# Count-controlled loop (repeat 5 times)
-ghumu 5 choti
-    bol mug "Iteration number" jod count
-sakiyo
+| Syntax | Meaning | Nepali word |
+|--------|---------|-------------|
+| `bol mug` | print | bol = speak, mug = emphasis |
+| `oi mug` | declare variable | oi = exclamation, mug = emphasis |
+| `oi mug bhan` | read input | bhan = speak/say |
+| `mug jod` | add | jod = join/add |
+| `mug ghata` | subtract | ghata = decrease |
+| `mug guna` | multiply | guna = multiply |
+| `mug bhag` | divide | bhag = share/divide |
+| `lai` | into (target of operation) | lai = to (dative) |
+| `yedi` / `yadi` | if | yedi/yadi = if |
+| `babaal` | equals condition | (slang, repurposed) |
+| `laamo` | not-equals condition | laamo = long (repurposed) |
+| `bhane` | then | bhane = then |
+| `aile feri` | else-if | aile = now, feri = again |
+| `sakiyo` | end block | sakiyo = finished/done |
 
-# Condition-controlled loop (while loop)
-jabsamma number sano 10 cha
-    bol mug "Current number:" jod number
-    number = number jod 1
-sakiyo
-```
-
-#### Nested Control Flow
-You can nest both loops and conditionals:
-```
-ghumu 3 choti
-    yedi count babaal 2 bhane
-        bol mug "Second iteration"
-    natra
-        bol mug "Other iteration"
-    sakiyo
-sakiyo
-```
-
-### 3. Operations
-
-#### Arithmetic
-- `jod`: Addition
-  ```
-  result = 5 jod 3  # result = 8
-  ```
-- `ghata`: Subtraction
-  ```
-  result = 10 ghata 4  # result = 6
-  ```
-- `guna`: Multiplication
-  ```
-  result = 6 guna 3  # result = 18
-  ```
-- `bhag`: Division
-  ```
-  result = 15 bhag 3  # result = 5
-  ```
-
-#### Comparison
-- `barabar`: Equal to
-  ```
-  yadi a barabar b bhane
-  ```
-- `thulo`: Greater than
-  ```
-  yadi age thulo 18 bhane
-  ```
-- `sano`: Less than
-  ```
-  yadi score sano 60 bhane
-  ```
-
-#### Logical Operations
-- `ra`: Logical AND
-  ```
-  yadi (age thulo 18) ra (score thulo 70) bhane
-  ```
-- `wa`: Logical OR
-  ```
-  yadi (member barabar sahi) wa (vip barabar sahi) bhane
-  ```
-- `hoina`: Logical NOT
-  ```
-  yadi (finished hoina) bhane
-  ```
-
-### 4. Data Types
-
-LyangLang supports three primary data types:
-
-#### Numbers
-```
-age = 25
-temperature = -5
-result = 10 jod 15
-```
-
-#### Strings
-```
-name = "Ram Bahadur"
-greeting = "Namaste"
-message = greeting jod ", " jod name jod "!"
-```
-
-#### Booleans
-```
-isValid = sahi      # true
-isComplete = galat  # false
-```
-
-### 5. Functions and Procedures
-
-Define reusable blocks of code:
-
-```
-kaam add_numbers(a, b) {
-    result = a jod b
-    bol mug "Sum: " jod result
-    result      # Return value
-}
-
-# Call the function
-sum = add_numbers(5, 7)
-```
-
-## Loop Examples
-
-### Counted Loop (For Loop)
-```
-# Print numbers 1 to 5
-ghumu 5 choti
-    bol mug k
-sakiyo
-```
-
-### While Loop
-```
-k = 1
-jabsamma k <= 5 cha
-    bol mug k
-    k = k jod 1
-sakiyo
-```
-
-Both loops support break ("rokana") and continue ("arko hernu") statements.
-
-## Sample Programs
+## Examples
 
 ### Hello World
-```
+
+```bash
 bol mug "Namaste, world!"
 ```
-**Expected Output:**
-```
-Namaste, world!
-```
 
-### Simple Calculator
-```
-# Simple calculator
-bol mug "Pahilo Number:"
-oi mug bhan num1
+### Greet the user
 
-bol mug "Dosro Number:"
-oi mug bhan num2
-
-mug rakhnu num1 jod num2 lai result
-bol mug "Sum: " jod result
-
-mug rakhnu num1 ghata num2 lai diff
-bol mug "Difference: " jod diff
-
-mug rakhnu num1 guna num2 lai product
-bol mug "Product: " jod product
-
-mug rakhnu num1 bhag num2 lai quotient
-bol mug "Quotient: " jod quotient
-```
-**Expected Input/Output:**
-```
-Pahilo Number:
-> 10
-Dosro Number:
-> 5
-Sum: 15
-Difference: 5
-Product: 50
-Quotient: 2
-```
-
-### User Greeting
-```
+```bash
 bol mug "Timro naam k ho?"
-oi mug bhan userName
-
-bol mug "Namaste, " jod userName jod "!"
-```
-**Expected Input/Output:**
-```
-Timro naam k ho?
-> Ram
-Namaste, Ram!
+oi mug bhan naam
+bol mug "Namaste, " + naam + "!"
 ```
 
-### Age Verification
-```
-bol mug "Timro umer kati ho?"
-oi mug bhan age
+### Calculator
 
-yadi age babaal "18" bhane
-    bol mug "Tapai adult hununcha!"
-aile feri age babaal "18" hoina bhane
-    bol mug "Tapai adult hunuhunna!"
+```bash
+oi mug a = 12
+oi mug b = 4
+
+mug jod a, b lai sum
+bol mug "Jod (add): " + sum
+mug ghata a, b lai diff
+bol mug "Ghata (subtract): " + diff
+mug guna a, b lai prod
+bol mug "Guna (multiply): " + prod
+mug bhag a, b lai quot
+bol mug "Bhag (divide): " + quot
+```
+
+### Color picker (conditionals)
+
+```bash
+bol mug "Timro man pasand rang?"
+oi mug bhan rang
+
+yedi rang babaal "rato" bhane
+    bol mug "Rato rang, energy high!"
+aile feri rang babaal "nilo" bhane
+    bol mug "Nilo rang, chill vibes."
+aile feri rang babaal "hariyo" bhane
+    bol mug "Hariyo rang, nature mode."
 sakiyo
 ```
-**Expected Input/Output:**
-```
-Timro umer kati ho?
-> 20
-Tapai adult hununcha!
-```
-or
-```
-Timro umer kati ho?
-> 16
-Tapai adult hunuhunna!
+
+### Full demos in repo
+
+```bash
+lyangpiler run example.nbh              # variables, arithmetic, I/O, conditions
+lyangpiler run myapp/main.nbh           # shop calculator, slang, multi-branch
 ```
 
-### Color Preference
-```
-bol mug "Timro favourite color k ho?"
-oi mug bhan color
+## Error handling
 
-yedi color babaal "rato" bhane
-    bol mug "Rato rang maya ko rang ho"
-aile feri color babaal "nilo" bhane
-    bol mug "Nilo rang aakash jastai shanta cha"
-aile feri
-    bol mug color jod " ramro color ho"
-sakiyo
-```
-**Expected Input/Output:**
-```
-Timro favourite color k ho?
-> rato
-Rato rang maya ko rang ho
-```
+Four error types, reported to stderr with line info:
 
-## Error Handling
+- `LexError`: malformed tokens or unterminated strings
+- `ParseError`: grammar violations (missing `bhane`, `sakiyo`, etc.)
+- `RuntimeError`: overflow, division by zero
+- `NameError`: undefined variable
+- `TypeError`: wrong type in arithmetic or comparison
 
-### Error Types
-- **Syntax Errors**: Malformed code or invalid token sequences
-- **Runtime Errors**: Issues that occur during program execution
-- **Type Errors**: Invalid operations between incompatible data types
-- **Name Errors**: Using undefined variables or functions
-
-### Error Format
-```
-Error at line X: [Error Type]
-Details: [Error Description]
-Code: [Problematic code snippet]
-     ^---- Error location indicator
-```
-
-### Common Error Messages
-- `अपरिभाषित चर` (Undefined variable): Occurs when you try to use a variable that hasn't been declared.
-- `अमान्य संचालन` (Invalid operation): Happens when you perform an operation that's not permitted, like dividing by zero.
-- `प्रकार बेमेल` (Type mismatch): When you try to perform operations on incompatible types, like adding a number to a boolean.
-- `वाक्य रचना त्रुटि` (Syntax error): This occurs when your code doesn't follow the LyangLang grammar rules.
-
-## Lyangpiler VM
-
-### Architecture
-- **Stack-based virtual machine**: Uses a stack to store and manipulate values during execution
-- **Register-free design for simplicity**: No need to manage registers, making the VM easier to understand
-- **Bytecode instruction set**: Optimized for Nepali language constructs and efficient execution
-
-### Bytecode Instructions
-- `PUSH`: Push value onto stack (`PushNumber`, `PushString`, `PushBoolean`)
-- `POP`: Remove top value from stack
-- `LOAD/STORE`: Load and store variables (`LoadVariable`, `StoreVariable`)
-- `ADD/SUB/MUL/DIV`: Arithmetic operations
-- `CONCAT`: String concatenation
-- `PRINT`: Output value to console
-- `INPUT`: Read user input from console
-- `JMP`: Conditional and unconditional jumps (`Jump`, `JumpIfTrue`, `JumpIfFalse`)
-- `CMP`: Compare values (`Equal`, `NotEqual`) on the VM today
-- `HALT`: Stop program execution
-
-### Memory Management
-- **Stack-based memory allocation**: Values are pushed and popped from the stack as needed
-- **Variable storage**: Separate from the stack for quick access
-- **String pool**: Efficiently stores string literals
-- **Automatic cleanup**: Resources are automatically reclaimed when the VM terminates
-
-### Execution Model
-1. Source code is parsed into an Abstract Syntax Tree (AST)
-2. AST is compiled into bytecode instructions
-3. VM initializes the stack and variable storage
-4. VM executes instructions sequentially, manipulating the stack
-5. Control flow instructions alter execution path as needed
-6. Program terminates when the HALT instruction is reached
-
-## Project Structure
+## Project structure
 
 ```
 src/
-  ├── lexer.rs     # Tokenization of source code
-  ├── parser.rs    # Parsing tokens into AST
-  ├── ast.rs       # Abstract Syntax Tree definitions
-  ├── token.rs     # Token definitions and types
-  ├── bytecode.rs  # Bytecode instruction definitions
-  ├── compiler.rs  # Compiles AST to bytecode
-  ├── vm.rs        # Virtual Machine implementation
-  ├── error.rs     # Error handling definitions
-  ├── interpreter.rs # Direct interpreter (alternative to VM)
-  └── main.rs      # Entry point and CLI handling
-example.nbh        # Sample program at repo root
-myapp/
-  ├── main.nbh     # Longer sample (slang + hisab demo)
-  └── README.md    # How to run myapp
+  lexer.rs          source → tokens
+  parser.rs         tokens → AST
+  ast.rs            Statement / expression types
+  token.rs          Token enum
+  interpreter.rs    tree-walking backend (default)
+  compiler.rs       AST → bytecode
+  bytecode.rs       Opcode / Value definitions
+  vm.rs             bytecode VM backend
+  error.rs          error types + formatting
+  main.rs           CLI (clap)
+example.nbh         feature tour
+myapp/main.nbh      longer interactive demo
 ```
 
 ## Development
 
-### Building from Source
 ```bash
-# Clone the repository
-git clone https://github.com/Konseptt/LyangLang.git
-cd LyangLang
-
-# Build the project
-cargo build --release
-
-# Run the executable
-./target/release/lyangpiler run example.nbh --vm
-./target/release/lyangpiler run myapp/main.nbh --vm
+cargo build                               # build
+cargo test                                # run tests (lexer, parser, vm, interpreter)
+cargo test -- --nocapture                 # verbose output
+cargo clippy                              # lints
+cargo run -- run example.nbh --vm         # quick try
 ```
 
-### Running Tests
-```bash
-# Run all tests
-cargo test
+## Contributing
 
-# Run specific tests
-cargo test lexer
-cargo test parser
-
-# Run with verbose output
-cargo test -- --nocapture
-```
-
-### Contributing
-1. Fork the repository on GitHub
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and add tests when possible
-4. Ensure all tests pass: `cargo test`
-5. Commit your changes: `git commit -m 'Add new feature'`
-6. Push to the branch: `git push origin feature-name`
-7. Submit a pull request through GitHub
+1. Fork the repo
+2. Create a branch: `git checkout -b feature-name`
+3. Make changes, add tests alongside
+4. `cargo build && cargo test` must stay green
+5. Push and open a pull request
 
 ## Troubleshooting
 
-### Common Issues
-1. **Installation failures**
-   - Verify Rust toolchain installation: `rustc --version`
-   - Check system PATH configuration: Ensure the installation directory is in your PATH
-   - For permissions issues on Linux/macOS, try using `sudo` for installation
-   
-2. **Compilation errors**
-   - Update Rust to latest stable version: `rustup update stable`
-   - Clean and rebuild project: `cargo clean && cargo build`
-   - Check for missing dependencies: `cargo check`
+**Command not found after install?**
+- Mac/Linux: `source ~/.lyangpiler/enable.sh` or open a new terminal
+- Windows: confirm `%USERPROFILE%\.lyangpiler\bin` is on your PATH
 
-3. **Runtime errors**
-   - Check syntax matches LyangLang specifications
-   - Verify variable declarations and types
-   - Look for missing `sakiyo` statements to close blocks
-   - Ensure string literals are properly quoted
-   - Check for variable scope issues
+**Build failures?**
+- `rustup update stable` then `cargo clean && cargo build`
 
-4. **Command not found errors**
-   - Make sure the installation was successful
-   - Verify the PATH configuration in your shell
-   - Try using the full path to the executable
-
-### Getting Help
-- Open an issue on the [project repository](https://github.com/Konseptt/LyangLang)
-- Check existing documentation in the [wiki](https://github.com/Konseptt/LyangLang/wiki)
-- Try `example.nbh` in the repository root
-- Join the community discussions in the [forums](https://github.com/Konseptt/LyangLang/discussions)
+**Runtime errors?**
+- Check for missing `sakiyo` to close blocks
+- String comparisons: use `yedi var babaal "value"` not `yadi var == "value"`
+- Arithmetic operands must be declared numbers
 
 ## License
 
-MIT License - See LICENSE file for details.
-
-Copyright (c) 2023 LyangLang Team
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+MIT
