@@ -117,7 +117,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://crates.io/crates/lyangpiler
+      url: https://crates.io/crates/lyanglyang
     steps:
       - uses: actions/checkout@v3
       

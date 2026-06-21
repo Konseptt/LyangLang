@@ -43,7 +43,7 @@ powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.c
 
 After the terminal installer finishes, Mac/Linux can run **`source ~/.lyangpiler/enable.sh`** once in that same window so `lyangpiler` works immediately without opening a new terminal.
 
-**Note:** The one-line installer only works when the [latest GitHub Release](https://github.com/Konseptt/LyangLang/releases/latest) includes prebuilt `.zip` / `.tar.gz` files. If the release has no assets yet, use **`cargo install --git https://github.com/Konseptt/LyangLang.git --locked`** (needs [Rust](https://rustup.rs/)).
+**With Rust installed:** run **`cargo install lyanglyang --locked`**. This installs the `lyangpiler` command from crates.io.
 
 ## Table of Contents
 
@@ -133,7 +133,7 @@ docker run --rm -v "$PWD:/work" -w /work lyangpiler run ./example.nbh --vm
 **Any OS with Rust already installed:**
 
 ```bash
-cargo install --git https://github.com/Konseptt/LyangLang.git --locked
+cargo install lyanglyang --locked
 ```
 
 After a binary install: on **Mac/Linux** run `source ~/.lyangpiler/enable.sh` in the same terminal to use `lyangpiler` immediately, or open a new terminal. On **Windows**, the installer updates `PATH` for the current PowerShell window so `lyangpiler` usually works at once. If the command is not found, confirm `~/.lyangpiler/bin` or `%USERPROFILE%\.lyangpiler\bin` is on your `PATH`.
@@ -761,4 +761,3 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
