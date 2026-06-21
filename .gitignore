@@ -105,3 +105,5 @@ __pycache__/
 /lyangpiler-*-amd64/
 /lyangpiler-*-x86_64/
 /lyangpiler-*-aarch64/
+# Local AI assistant instructions — not for the repo
+CLAUDE.md

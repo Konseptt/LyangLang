@@ -67,8 +67,10 @@ impl VM {
                 },
                 
                 Opcode::PushVariable(index) => {
-                    if let Some(var_name) = self.program.variable_names.get(index) {
-                        self.stack.push(Value::String(var_name.clone()));
+                    // Push the variable's stored value (mirrors LoadVariable),
+                    // not its name. The variables table is keyed by index.
+                    if index < self.variables.len() {
+                        self.stack.push(self.variables[index].clone());
                         self.ip += 1;
                     } else {
                         return Err(NepalError::RuntimeError(
@@ -122,7 +124,10 @@ impl VM {
                     
                     match (a, b) {
                         (Value::Number(a_val), Value::Number(b_val)) => {
-                            self.stack.push(Value::Number(a_val + b_val));
+                            match a_val.checked_add(b_val) {
+                                Some(r) => self.stack.push(Value::Number(r)),
+                                None => return Err(NepalError::RuntimeError("arithmetic overflow")),
+                            }
                         },
                         (Value::String(a_str), Value::String(b_str)) => {
                             self.stack.push(Value::String(a_str + &b_str));
@@ -153,7 +158,10 @@ impl VM {
                     
                     match (a, b) {
                         (Value::Number(a_val), Value::Number(b_val)) => {
-                            self.stack.push(Value::Number(a_val - b_val));
+                            match a_val.checked_sub(b_val) {
+                                Some(r) => self.stack.push(Value::Number(r)),
+                                None => return Err(NepalError::RuntimeError("arithmetic overflow")),
+                            }
                         },
                         _ => {
                             return Err(NepalError::RuntimeError(
@@ -175,7 +183,10 @@ impl VM {
                     
                     match (a, b) {
                         (Value::Number(a_val), Value::Number(b_val)) => {
-                            self.stack.push(Value::Number(a_val * b_val));
+                            match a_val.checked_mul(b_val) {
+                                Some(r) => self.stack.push(Value::Number(r)),
+                                None => return Err(NepalError::RuntimeError("arithmetic overflow")),
+                            }
                         },
                         _ => {
                             return Err(NepalError::RuntimeError(
@@ -200,7 +211,10 @@ impl VM {
                             if b_val == 0 {
                                 return Err(NepalError::RuntimeError("Division by zero"));
                             }
-                            self.stack.push(Value::Number(a_val / b_val));
+                            match a_val.checked_div(b_val) {
+                                Some(r) => self.stack.push(Value::Number(r)),
+                                None => return Err(NepalError::RuntimeError("arithmetic overflow")),
+                            }
                         },
                         _ => {
                             return Err(NepalError::RuntimeError(
@@ -274,6 +288,9 @@ impl VM {
                 
                 // Control flow
                 Opcode::JumpIfTrue(address) => {
+                    if address > self.program.instructions.len() {
+                        return Err(NepalError::RuntimeError("invalid jump target"));
+                    }
                     if let Some(condition) = self.stack.pop() {
                         match condition {
                             Value::Boolean(true) => self.ip = address,
@@ -290,6 +307,9 @@ impl VM {
                 },
                 
                 Opcode::JumpIfFalse(address) => {
+                    if address > self.program.instructions.len() {
+                        return Err(NepalError::RuntimeError("invalid jump target"));
+                    }
                     if let Some(condition) = self.stack.pop() {
                         match condition {
                             Value::Boolean(false) => self.ip = address,
@@ -306,6 +326,9 @@ impl VM {
                 },
                 
                 Opcode::Jump(address) => {
+                    if address > self.program.instructions.len() {
+                        return Err(NepalError::RuntimeError("invalid jump target"));
+                    }
                     self.ip = address;
                 },
                 
@@ -323,12 +346,26 @@ impl VM {
                             Value::Boolean(a_val == b_val)
                         },
                         (Value::String(a_str), Value::String(b_str)) => {
-                            Value::Boolean(
-                                a_str.to_lowercase() == b_str.to_lowercase(),
-                            )
+                            // Case-insensitive, matching the tree-walking
+                            // interpreter and the documented behaviour (RATO == rato).
+                            Value::Boolean(a_str.to_lowercase() == b_str.to_lowercase())
                         },
                         (Value::Boolean(a_val), Value::Boolean(b_val)) => {
                             Value::Boolean(a_val == b_val)
+                        },
+                        // Mixed Number/String: compare numerically if the string
+                        // parses as a number, otherwise unequal.
+                        (Value::Number(a_val), Value::String(b_str)) => {
+                            match b_str.trim().parse::<i32>() {
+                                Ok(b_val) => Value::Boolean(a_val == b_val),
+                                Err(_) => Value::Boolean(false),
+                            }
+                        },
+                        (Value::String(a_str), Value::Number(b_val)) => {
+                            match a_str.trim().parse::<i32>() {
+                                Ok(a_val) => Value::Boolean(a_val == b_val),
+                                Err(_) => Value::Boolean(false),
+                            }
                         },
                         _ => {
                             return Err(NepalError::RuntimeError(
@@ -336,11 +373,11 @@ impl VM {
                             ));
                         }
                     };
-                    
+
                     self.stack.push(result);
                     self.ip += 1;
                 },
-                
+
                 Opcode::NotEqual => {
                     if self.stack.len() < 2 {
                         return Err(NepalError::RuntimeError("Stack underflow"));
@@ -354,12 +391,25 @@ impl VM {
                             Value::Boolean(a_val != b_val)
                         },
                         (Value::String(a_str), Value::String(b_str)) => {
-                            Value::Boolean(
-                                a_str.to_lowercase() != b_str.to_lowercase(),
-                            )
+                            // Case-insensitive, mirroring the Equal opcode above.
+                            Value::Boolean(a_str.to_lowercase() != b_str.to_lowercase())
                         },
                         (Value::Boolean(a_val), Value::Boolean(b_val)) => {
                             Value::Boolean(a_val != b_val)
+                        },
+                        // Mixed Number/String: compare numerically if the string
+                        // parses as a number, otherwise unequal (=> not-equal true).
+                        (Value::Number(a_val), Value::String(b_str)) => {
+                            match b_str.trim().parse::<i32>() {
+                                Ok(b_val) => Value::Boolean(a_val != b_val),
+                                Err(_) => Value::Boolean(true),
+                            }
+                        },
+                        (Value::String(a_str), Value::Number(b_val)) => {
+                            match a_str.trim().parse::<i32>() {
+                                Ok(a_val) => Value::Boolean(a_val != b_val),
+                                Err(_) => Value::Boolean(true),
+                            }
                         },
                         _ => {
                             return Err(NepalError::RuntimeError(
@@ -374,8 +424,11 @@ impl VM {
                 
                 // Program flow
                 Opcode::Return => {
-                    // Simply increment instruction pointer
-                    self.ip += 1;
+                    // No call-frame / return-address stack exists in this VM,
+                    // so there is nowhere to return to. Halt execution like
+                    // reaching the end of the program.
+                    // TODO: implement proper call frames if functions are added.
+                    self.running = false;
                 },
                 
                 Opcode::Halt => {
@@ -452,5 +505,35 @@ mod tests {
         vm.run().unwrap();
         let i = vm.program.variable_names.iter().position(|n| n == "p").unwrap();
         assert_eq!(vm.variables[i], Value::Number(12));
+    }
+
+    fn run_string_comparison(opcode: Opcode, left: &str, right: &str) -> Value {
+        let mut program = BytecodeProgram::new();
+        let left_idx = program.add_string(left.into());
+        let right_idx = program.add_string(right.into());
+        program.add_instruction(Opcode::PushString(left_idx), 1);
+        program.add_instruction(Opcode::PushString(right_idx), 1);
+        program.add_instruction(opcode, 1);
+        program.add_instruction(Opcode::Halt, 1);
+
+        let mut vm = VM::new(program);
+        vm.run().unwrap();
+        vm.peek().unwrap().clone()
+    }
+
+    #[test]
+    fn string_comparisons_are_case_insensitive() {
+        assert_eq!(
+            run_string_comparison(Opcode::Equal, "RATO", "rato"),
+            Value::Boolean(true)
+        );
+        assert_eq!(
+            run_string_comparison(Opcode::NotEqual, "RATO", "rato"),
+            Value::Boolean(false)
+        );
+        assert_eq!(
+            run_string_comparison(Opcode::NotEqual, "rato", "nilo"),
+            Value::Boolean(true)
+        );
     }
 }

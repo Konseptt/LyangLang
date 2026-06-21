@@ -31,7 +31,13 @@ impl Lexer {
             }
 
             // Try to match keywords from longest to shortest to avoid partial matches
-            match self.peek_char() {
+            // peek_char returns None only at end-of-input, which is already
+            // excluded by the bounds check above; the None arm is defensive.
+            let current_char = match self.peek_char() {
+                Some(c) => c,
+                None => break,
+            };
+            match current_char {
                 'b' if self.match_keyword("bhane") => tokens.push(Token::Bhane),
                 'b' if self.match_keyword("bhag") => tokens.push(Token::Bhag),
                 'b' if self.match_keyword("babaal") => tokens.push(Token::Babaal),
@@ -94,13 +100,25 @@ impl Lexer {
         Ok(tokens)
     }
 
-    fn peek_char(&self) -> char {
-        self.input[self.position]
+    fn peek_char(&self) -> Option<char> {
+        self.input.get(self.position).copied()
     }
 
     fn match_keyword(&mut self, keyword: &str) -> bool {
         let chars: Vec<char> = keyword.chars().collect();
         if self.input[self.position..].starts_with(&chars) {
+            // Ensure the keyword ends on an identifier boundary: the char
+            // immediately following the matched run must not be an identifier
+            // continuation char (alphanumeric or '_'). Otherwise a run like
+            // `babaalx` would wrongly tokenize as keyword `babaal` + `x`.
+            // Multi-word keywords (e.g. "bol mug") embed a space, which is not
+            // an identifier char, so their internal boundary is unaffected.
+            let next = self.input.get(self.position + chars.len());
+            if let Some(c) = next {
+                if c.is_alphanumeric() || *c == '_' {
+                    return false;
+                }
+            }
             self.position += chars.len();
             true
         } else {
