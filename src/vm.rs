@@ -346,7 +346,9 @@ impl VM {
                             Value::Boolean(a_val == b_val)
                         },
                         (Value::String(a_str), Value::String(b_str)) => {
-                            Value::Boolean(a_str == b_str)
+                            // Case-insensitive, matching the tree-walking
+                            // interpreter and the documented behaviour (RATO == rato).
+                            Value::Boolean(a_str.to_lowercase() == b_str.to_lowercase())
                         },
                         (Value::Boolean(a_val), Value::Boolean(b_val)) => {
                             Value::Boolean(a_val == b_val)
@@ -389,7 +391,8 @@ impl VM {
                             Value::Boolean(a_val != b_val)
                         },
                         (Value::String(a_str), Value::String(b_str)) => {
-                            Value::Boolean(a_str != b_str)
+                            // Case-insensitive, mirroring the Equal opcode above.
+                            Value::Boolean(a_str.to_lowercase() != b_str.to_lowercase())
                         },
                         (Value::Boolean(a_val), Value::Boolean(b_val)) => {
                             Value::Boolean(a_val != b_val)
@@ -502,5 +505,35 @@ mod tests {
         vm.run().unwrap();
         let i = vm.program.variable_names.iter().position(|n| n == "p").unwrap();
         assert_eq!(vm.variables[i], Value::Number(12));
+    }
+
+    fn run_string_comparison(opcode: Opcode, left: &str, right: &str) -> Value {
+        let mut program = BytecodeProgram::new();
+        let left_idx = program.add_string(left.into());
+        let right_idx = program.add_string(right.into());
+        program.add_instruction(Opcode::PushString(left_idx), 1);
+        program.add_instruction(Opcode::PushString(right_idx), 1);
+        program.add_instruction(opcode, 1);
+        program.add_instruction(Opcode::Halt, 1);
+
+        let mut vm = VM::new(program);
+        vm.run().unwrap();
+        vm.peek().unwrap().clone()
+    }
+
+    #[test]
+    fn string_comparisons_are_case_insensitive() {
+        assert_eq!(
+            run_string_comparison(Opcode::Equal, "RATO", "rato"),
+            Value::Boolean(true)
+        );
+        assert_eq!(
+            run_string_comparison(Opcode::NotEqual, "RATO", "rato"),
+            Value::Boolean(false)
+        );
+        assert_eq!(
+            run_string_comparison(Opcode::NotEqual, "rato", "nilo"),
+            Value::Boolean(true)
+        );
     }
 }
